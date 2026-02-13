@@ -35,44 +35,25 @@ os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "true"
 if sys.platform == "win32":
     os.environ["PATH"] = ROOT_DIR + f";{ROOT_DIR}/ffmpeg;" + os.environ["PATH"]
 
+API_KEY = os.environ.get("API_KEY", "").strip()
+if not API_KEY:
+    print("❌ Missing required environment variable: API_KEY")
+    sys.exit(1)
+
 
 try:
-    print("\nLoading Parakeet TDT 0.6B V3 ONNX model with INT8 quantization...")
+    print("\nLoading Parakeet TDT 0.6B V3 ONNX model with INT8 quantization (CPU-only)...")
     import onnx_asr
 
     import onnxruntime as ort
-    # Try GPU providers first
     available_providers = ort.get_available_providers()
     print(f"Available providers: {available_providers}")
-    
-    # Priority: Tensorrt, CUDA, CPU
-    providers_to_try = []
-    if "TensorrtExecutionProvider" in available_providers:
-        providers_to_try.append("TensorrtExecutionProvider")
-    if "CUDAExecutionProvider" in available_providers:
-        providers_to_try.append("CUDAExecutionProvider")
-    providers_to_try.append("CPUExecutionProvider")
-    
-    print(f"Using providers: {providers_to_try}")
-
-    # Configure session options
-    sess_options = ort.SessionOptions()
-    if "CPUExecutionProvider" in providers_to_try[0]:
-        sess_options.intra_op_num_threads = 8
-        sess_options.inter_op_num_threads = 1
-    
-    asr_model = onnx_asr.load_model(
-        "nemo-parakeet-tdt-0.6b-v3",
-        quantization="int8",
-        providers=providers_to_try,
-        sess_options=sess_options,
-    ).with_timestamps()
-
-    print(f"Available providers: {ort.get_available_providers()}")
+    if "CPUExecutionProvider" not in available_providers:
+        raise RuntimeError("CPUExecutionProvider is not available in onnxruntime.")
 
     # Configure session options for optimal CPU performance
     sess_options = ort.SessionOptions()
-    sess_options.intra_op_num_threads = 4  # Match Waitress threads
+    sess_options.intra_op_num_threads = 4
     sess_options.inter_op_num_threads = 1
     sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
     sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
@@ -101,6 +82,31 @@ app.config["MAX_CONTENT_LENGTH"] = 2000 * 1024 * 1024
 
 # Progress tracking
 progress_tracker = {}
+PROTECTED_PATHS = {"/health", "/status", "/metrics"}
+PROTECTED_PREFIXES = ("/v1/", "/progress/")
+
+
+def _extract_api_key() -> str:
+    auth_header = request.headers.get("Authorization", "").strip()
+    if auth_header.lower().startswith("bearer "):
+        return auth_header[7:].strip()
+    if auth_header:
+        return auth_header
+    return request.headers.get("X-API-Key", "").strip()
+
+
+@app.before_request
+def enforce_api_key():
+    if request.method == "OPTIONS":
+        return None
+
+    path = request.path
+    if path in PROTECTED_PATHS or path.startswith(PROTECTED_PREFIXES):
+        provided_key = _extract_api_key()
+        if provided_key != API_KEY:
+            return jsonify({"error": "Unauthorized: invalid or missing API key"}), 401
+
+    return None
 
 
 def get_audio_duration(file_path: str) -> float:
@@ -334,13 +340,24 @@ def openapi_spec():
             "description": "High-performance ONNX-optimized speech transcription API compatible with OpenAI.",
             "version": "1.0.0"
         },
-        "servers": [{"url": "http://100.85.200.51:5092"}],
+        "servers": [{"url": request.host_url.rstrip("/")}],
+        "components": {
+            "securitySchemes": {
+                "BearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "API Key",
+                    "description": "Use API_KEY as: Authorization: Bearer <API_KEY>"
+                }
+            }
+        },
         "paths": {
             "/v1/audio/transcriptions": {
                 "post": {
                     "summary": "Transcribe Audio",
                     "description": "Transcribes audio into the input language. Supports real-time streaming progress.",
                     "operationId": "transcribe_audio",
+                    "security": [{"BearerAuth": []}],
                     "requestBody": {
                         "content": {
                             "multipart/form-data": {
@@ -385,6 +402,9 @@ def openapi_spec():
                                     "schema": {"type": "string"}
                                 }
                             }
+                        },
+                        "401": {
+                            "description": "Unauthorized: invalid or missing API key"
                         }
                     }
                 }

@@ -151,6 +151,38 @@
         }
 
         /* Upload Area */
+        .auth-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .auth-section label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-section input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .auth-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
         .upload-section {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
@@ -557,6 +589,12 @@
                 output.</p>
         </header>
 
+        <div class="auth-section">
+            <label for="apiKeyInput">API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="Enter API key (matches server API_KEY env var)" autocomplete="off">
+            <div class="auth-hint">Sent as <code>Authorization: Bearer ...</code> for all protected requests.</div>
+        </div>
+
         <div class="upload-section" id="uploadArea">
             <input type="file" id="fileInput" accept="audio/*,video/*">
             <div class="upload-icon">⚡</div>
@@ -661,9 +699,24 @@
             const fileNameDisplay = document.getElementById('fileName');
             const loadingBar = document.getElementById('loadingBar');
             const toast = document.getElementById('toast');
+            const apiKeyInput = document.getElementById('apiKeyInput');
 
             let currentData = null;
             let speakerNames = { 'Speaker 1': 'Speaker 1', 'Speaker 2': 'Speaker 2' };
+            const savedApiKey = localStorage.getItem('parakeet_api_key') || '';
+
+            if (savedApiKey) {
+                apiKeyInput.value = savedApiKey;
+            }
+
+            apiKeyInput.addEventListener('input', () => {
+                const apiKey = apiKeyInput.value.trim();
+                if (apiKey) {
+                    localStorage.setItem('parakeet_api_key', apiKey);
+                } else {
+                    localStorage.removeItem('parakeet_api_key');
+                }
+            });
 
             // Mouse tracking for hover effect
             uploadArea.addEventListener('mousemove', e => {
@@ -692,8 +745,22 @@
                 if (file) startTranscription(file);
             };
 
+            function getAuthHeaders() {
+                const apiKey = apiKeyInput.value.trim();
+                if (!apiKey) {
+                    return null;
+                }
+                return { 'Authorization': `Bearer ${apiKey}` };
+            }
+
             async function startTranscription(file) {
                 if (!file) return;
+
+                const authHeaders = getAuthHeaders();
+                if (!authHeaders) {
+                    showToast('API key required.', '🔒');
+                    return;
+                }
 
                 setLoading(true);
                 const formData = new FormData();
@@ -704,7 +771,9 @@
                 const progressInterval = setInterval(async () => {
                     try {
                         // Fetch progress status
-                        const progressResp = await fetch('/status');
+                        const progressResp = await fetch('/status', {
+                            headers: authHeaders
+                        });
                         if (progressResp.ok) {
                             const progress = await progressResp.json();
                             if (progress.status === 'processing') {
@@ -713,7 +782,9 @@
                         }
 
                         // Fetch metrics
-                        const metricsResp = await fetch('/metrics');
+                        const metricsResp = await fetch('/metrics', {
+                            headers: authHeaders
+                        });
                         if (metricsResp.ok) {
                             const metrics = await metricsResp.json();
                             updateMetrics(metrics);
@@ -726,16 +797,22 @@
                 try {
                     const response = await fetch('/v1/audio/transcriptions', {
                         method: 'POST',
+                        headers: authHeaders,
                         body: formData
                     });
 
+                    if (response.status === 401) throw new Error('UNAUTHORIZED');
                     if (!response.ok) throw new Error('API_SYNC_FAILED');
 
                     currentData = await response.json();
                     renderResults(currentData);
                     showToast('Neural link established. Transcription successful.', '✅');
                 } catch (err) {
-                    showToast('Critical error during neural sync.', '❌');
+                    if (err.message === 'UNAUTHORIZED') {
+                        showToast('Unauthorized: invalid API key.', '🔒');
+                    } else {
+                        showToast('Critical error during neural sync.', '❌');
+                    }
                 } finally {
                     clearInterval(progressInterval);
                     setLoading(false);
@@ -836,22 +913,26 @@
 
             // Export Actions
             document.getElementById('copyBtn').onclick = () => {
-                // Return only the text, no speaker tags, no undefined checks needed for speaker names
-                const text = currentData.segments.map(s => s.text).join('\n');
+                if (!currentData) return;
+                const segments = Array.isArray(currentData.segments) ? currentData.segments : [{ text: currentData.text || '' }];
+                const text = segments.map(s => s.text).join('\n');
                 navigator.clipboard.writeText(text);
                 showToast('Data copied to buffer.');
             };
 
             document.getElementById('saveTxtBtn').onclick = () => {
-                // Return only the text, no speaker tags
-                const text = currentData.segments.map(s => s.text).join('\n');
+                if (!currentData) return;
+                const segments = Array.isArray(currentData.segments) ? currentData.segments : [{ text: currentData.text || '' }];
+                const text = segments.map(s => s.text).join('\n');
                 download(text, 'transcription.txt');
             };
 
             document.getElementById('saveSrtBtn').onclick = async () => {
+                if (!currentData || !Array.isArray(currentData.segments)) return;
                 let srt = '';
                 currentData.segments.forEach((s, i) => {
-                    srt += `${i + 1}\n${formatSrtTime(s.start)} --> ${formatSrtTime(s.end)}\n[${speakerNames[s.speaker] || s.speaker}]: ${s.text}\n\n`;
+                    const speaker = s.speaker || 'Speaker 1';
+                    srt += `${i + 1}\n${formatSrtTime(s.start)} --> ${formatSrtTime(s.end)}\n[${speakerNames[speaker] || speaker}]: ${s.text}\n\n`;
                 });
                 download(srt, 'transcription.srt');
             };

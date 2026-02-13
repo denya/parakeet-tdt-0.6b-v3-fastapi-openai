@@ -1,20 +1,20 @@
-version: '3.8'
-
 services:
   # CPU-only deployment (default)
   parakeet-cpu:
     build:
       context: .
-      dockerfile: Dockerfile.cpu
+      dockerfile: Dockerfile
     image: parakeet-tdt:cpu
     container_name: parakeet-cpu
     ports:
       - "5092:5092"
     volumes:
       - parakeet-models:/app/models
+    environment:
+      - API_KEY=${API_KEY:?API_KEY is required}
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5092/health')" ]
+      test: [ "CMD", "python", "-c", "import os, urllib.request; req = urllib.request.Request('http://localhost:5092/health', headers={'Authorization': 'Bearer ' + os.environ.get('API_KEY', '')}); urllib.request.urlopen(req)" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -31,6 +31,8 @@ services:
       - "5092:5092"
     volumes:
       - parakeet-models:/app/models
+    environment:
+      - API_KEY=${API_KEY:?API_KEY is required}
     restart: unless-stopped
     deploy:
       resources:
@@ -40,7 +42,7 @@ services:
               count: 1
               capabilities: [ gpu ]
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5092/health')" ]
+      test: [ "CMD", "python", "-c", "import os, urllib.request; req = urllib.request.Request('http://localhost:5092/health', headers={'Authorization': 'Bearer ' + os.environ.get('API_KEY', '')}); urllib.request.urlopen(req)" ]
       interval: 30s
       timeout: 10s
       retries: 3

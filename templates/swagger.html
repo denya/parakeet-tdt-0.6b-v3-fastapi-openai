@@ -17,6 +17,15 @@
             window.ui = SwaggerUIBundle({
                 url: '/openapi.json',
                 dom_id: '#swagger-ui',
+                persistAuthorization: true,
+                requestInterceptor: (request) => {
+                    const apiKey = localStorage.getItem('parakeet_api_key');
+                    if (apiKey && request.loadSpec !== true) {
+                        request.headers = request.headers || {};
+                        request.headers.Authorization = `Bearer ${apiKey}`;
+                    }
+                    return request;
+                }
             });
         };
     </script>

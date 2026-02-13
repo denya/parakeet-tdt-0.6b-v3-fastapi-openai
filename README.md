@@ -61,11 +61,13 @@ The easiest way to get started. No dependencies to install!
 ```bash
 git clone https://github.com/groxaxo/parakeet-tdt-0.6b-v3-fastapi-openai
 cd parakeet-tdt-0.6b-v3-fastapi-openai
+export API_KEY="replace-with-strong-key"
 docker compose up parakeet-cpu -d
 ```
 
 **GPU Deployment** (requires [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)):
 ```bash
+export API_KEY="replace-with-strong-key"
 docker compose up parakeet-gpu -d
 ```
 
@@ -93,10 +95,12 @@ Parakeet TDT provides an OpenAI-compatible API server.
 
 ```bash
 conda activate parakeet-onnx
+export API_KEY="replace-with-strong-key"
 python app.py
 ```
 *   **Port**: 5092
 *   **Docs**: [http://127.0.0.1:5092/docs](http://127.0.0.1:5092/docs)
+*   **Authentication**: `Authorization: Bearer <API_KEY>` is required for transcription and runtime status endpoints.
 
 ### Client Example (Python)
 
@@ -107,7 +111,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="http://127.0.0.1:5092/v1",
-    api_key="sk-no-key-required"
+    api_key="replace-with-strong-key"
 )
 
 audio_file = open("audio.mp3", "rb")
@@ -134,6 +138,7 @@ Access it at: **[http://127.0.0.1:5092](http://127.0.0.1:5092)**
 1.  **Start the Parakeet Server** (if not already running):
     ```bash
     conda activate parakeet-onnx
+    export API_KEY="replace-with-strong-key"
     python app.py
     ```
     The server will be available at `http://127.0.0.1:5092`
@@ -142,7 +147,7 @@ Access it at: **[http://127.0.0.1:5092](http://127.0.0.1:5092)**
     - Navigate to **Open WebUI Settings -> Audio**
     - Set **STT Engine** to `OpenAI`
     - Set **OpenAI Base URL** to `http://127.0.0.1:5092/v1`
-    - Set **OpenAI API Key** to `sk-no-key-required`
+    - Set **OpenAI API Key** to the same value you set in `API_KEY`
     - Set **STT Model** to `parakeet-tdt-0.6b-v3`
     - Click **Save**
 
