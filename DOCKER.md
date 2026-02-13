@@ -41,7 +41,7 @@ docker run -d --name parakeet-gpu -p 5092:5092 --gpus all \
 | Endpoint | Description |
 |----------|-------------|
 | `http://localhost:5092` | Web UI |
-| `http://localhost:5092/health` | Health check (requires `Authorization: Bearer <API_KEY>`) |
+| `http://localhost:5092/health` | Health check (no API key required) |
 | `http://localhost:5092/v1/audio/transcriptions` | OpenAI-compatible API (requires `Authorization: Bearer <API_KEY>`) |
 | `http://localhost:5092/docs` | Swagger documentation |
 
@@ -84,7 +84,7 @@ docker volume rm parakeet-models
 
 ```bash
 # Check health
-curl -H "Authorization: Bearer ${API_KEY}" http://localhost:5092/health
+curl http://localhost:5092/health
 
 # Transcribe audio (OpenAI-compatible)
 curl -X POST http://localhost:5092/v1/audio/transcriptions \

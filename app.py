@@ -82,7 +82,7 @@ app.config["MAX_CONTENT_LENGTH"] = 2000 * 1024 * 1024
 
 # Progress tracking
 progress_tracker = {}
-PROTECTED_PATHS = {"/health", "/status", "/metrics"}
+PROTECTED_PATHS = {"/status", "/metrics"}
 PROTECTED_PREFIXES = ("/v1/", "/progress/")
 
 
