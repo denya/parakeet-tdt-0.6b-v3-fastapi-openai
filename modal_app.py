@@ -24,6 +24,14 @@ import modal
 APP_NAME = "parakeet-tdt-0-6b-v3-openai"
 MODEL_NAME = "nvidia/parakeet-tdt-0.6b-v3"
 TARGET_SAMPLE_RATE = 16_000
+DEFAULT_API_MODEL = "parakeet-tdt-0.6b-v3"
+# Modal currently serves one NeMo backend model; keep API aliases for OpenAI-compatible clients.
+API_MODEL_ALIASES = {
+    "parakeet-tdt-0.6b-v3": MODEL_NAME,
+    "istupakov/parakeet-tdt-0.6b-v3-onnx": MODEL_NAME,
+    "grikdotnet/parakeet-tdt-0.6b-fp16": MODEL_NAME,
+    "whisper-1": MODEL_NAME,
+}
 
 CHUNK_MINUTE = 1.5
 SILENCE_THRESHOLD = "-40dB"
@@ -359,11 +367,13 @@ class ApiService:
         web_app = FastAPI(title="Parakeet Transcription API", version="1.0.0")
 
         @web_app.get("/health")
-        async def health() -> dict[str, str]:
+        async def health() -> dict[str, Any]:
             return {
                 "status": "healthy",
-                "model": "parakeet-tdt-0.6b-v3",
+                "models": [k for k in API_MODEL_ALIASES.keys() if k != "whisper-1"],
+                "default_model": DEFAULT_API_MODEL,
                 "deployment": "modal",
+                "backend_model": MODEL_NAME,
                 "gpu": GPU_TYPE,
             }
 
@@ -384,10 +394,15 @@ class ApiService:
         async def transcribe_audio(
             _: None = Depends(enforce_api_key),
             file: UploadFile = File(...),
-            model: str = Form(default="whisper-1"),
+            model: str = Form(default=DEFAULT_API_MODEL),
             response_format: str = Form(default="json"),
         ):
-            del model
+            model_name = (model or DEFAULT_API_MODEL).strip().lower()
+            if model_name not in API_MODEL_ALIASES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid model '{model_name}'. Allowed: {sorted(API_MODEL_ALIASES)}",
+                )
 
             allowed_formats = {"json", "text", "srt", "verbose_json", "vtt"}
             if response_format not in allowed_formats:
@@ -598,11 +613,13 @@ class ApiService:
                                 for idx, seg in enumerate(all_segments)
                             ],
                             "words": all_words,
+                            "model": model_name,
                         }
                     )
 
                 response = JSONResponse({"text": full_text})
                 response.headers["X-Job-ID"] = unique_id
+                response.headers["X-Model"] = model_name
                 return response
 
             except HTTPException:

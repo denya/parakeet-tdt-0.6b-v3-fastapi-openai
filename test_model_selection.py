@@ -89,5 +89,6 @@ def test_openai_compatibility():
 if __name__ == "__main__":
     test_model_configs()
     test_model_fallback_logic()
+    test_lazy_loading_caching()
     test_openai_compatibility()
     print("\n✅ All tests passed successfully!")
