@@ -9,8 +9,11 @@ server.log
 benchmark_results/
 venv/
 .env
+.envrc
 .idea/
 .vscode/
+audio-example/
+modal-test-results/
 env/
 build/
 develop-eggs/
