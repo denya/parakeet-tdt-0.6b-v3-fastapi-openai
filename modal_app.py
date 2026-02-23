@@ -5,6 +5,13 @@ Deploy:
 
 Serve (dev):
   modal serve modal_app.py
+
+Client integration notes:
+  - Backend decoding runs in 5-minute windows (`CHUNK_MINUTE = 5.0`).
+  - For long recordings, split client uploads into ~30-45 minute chunks with
+    small overlap, then merge transcripts client-side.
+  - Modal web endpoints may return `303 See Other` roughly every 60s for long
+    requests; clients must follow redirects until the final `200` response.
 """
 
 import datetime
@@ -33,7 +40,7 @@ API_MODEL_ALIASES = {
     "whisper-1": MODEL_NAME,
 }
 
-CHUNK_MINUTE = 1.5
+CHUNK_MINUTE = 5.0
 SILENCE_THRESHOLD = "-40dB"
 SILENCE_MIN_DURATION = 0.5
 SILENCE_SEARCH_WINDOW = 30.0
@@ -274,6 +281,7 @@ def _read_pcm16_bytes(wav_path: str) -> tuple[bytes, float]:
     min_containers=0,
     max_containers=1,
     scaledown_window=20,
+    timeout=1800,
 )
 @modal.concurrent(max_inputs=1, target_inputs=1)
 class ParakeetWorker:
@@ -337,6 +345,7 @@ class ParakeetWorker:
     max_containers=1,
     scaledown_window=20,
     secrets=[modal.Secret.from_name("parakeet-api-key")],
+    timeout=600,
 )
 class ApiService:
     @modal.asgi_app()
