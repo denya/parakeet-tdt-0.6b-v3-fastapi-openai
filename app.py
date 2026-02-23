@@ -48,16 +48,6 @@ MODEL_CONFIGS = {
         "quantization": "int8",
         "description": "INT8 (fastest)"
     },
-    "istupakov/parakeet-tdt-0.6b-v3-onnx": {
-        "hf_id": "istupakov/parakeet-tdt-0.6b-v3-onnx",
-        "quantization": None,
-        "description": "FP32"
-    },
-    "grikdotnet/parakeet-tdt-0.6b-fp16": {
-        "hf_id": "grikdotnet/parakeet-tdt-0.6b-fp16",
-        "quantization": "fp16",
-        "description": "FP16"
-    },
 }
 
 # Model cache for lazy loading
@@ -475,8 +465,8 @@ def openapi_spec():
                                         "model": {
                                             "type": "string",
                                             "default": "parakeet-tdt-0.6b-v3",
-                                            "enum": ["parakeet-tdt-0.6b-v3", "istupakov/parakeet-tdt-0.6b-v3-onnx", "grikdotnet/parakeet-tdt-0.6b-fp16"],
-                                            "description": "Model variant to use: parakeet-tdt-0.6b-v3 (INT8, fastest), istupakov/parakeet-tdt-0.6b-v3-onnx (FP32), or grikdotnet/parakeet-tdt-0.6b-fp16 (FP16)"
+                                            "enum": ["parakeet-tdt-0.6b-v3"],
+                                            "description": "Model to use: parakeet-tdt-0.6b-v3 (INT8, fastest)"
                                         },
                                         "response_format": {
                                             "type": "string",

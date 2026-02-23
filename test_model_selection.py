@@ -21,18 +21,12 @@ def test_model_configs():
     # Verify MODEL_CONFIGS structure exists
     assert 'MODEL_CONFIGS = {' in content
     assert '"parakeet-tdt-0.6b-v3"' in content
-    assert '"istupakov/parakeet-tdt-0.6b-v3-onnx"' in content
-    assert '"grikdotnet/parakeet-tdt-0.6b-fp16"' in content
     
-    # Verify quantization settings are present
+    # Verify INT8-only quantization setting is present
     assert '"quantization": "int8"' in content
-    assert '"quantization": None' in content
-    assert '"quantization": "fp16"' in content
     
-    # Verify HuggingFace IDs are present
+    # Verify HuggingFace ID is present
     assert '"hf_id": "nemo-parakeet-tdt-0.6b-v3"' in content
-    assert '"hf_id": "istupakov/parakeet-tdt-0.6b-v3-onnx"' in content
-    assert '"hf_id": "grikdotnet/parakeet-tdt-0.6b-fp16"' in content
     
     print("✅ MODEL_CONFIGS structure test passed")
 
