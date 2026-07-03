@@ -20,13 +20,16 @@ def test_model_configs():
     
     # Verify MODEL_CONFIGS structure exists
     assert 'MODEL_CONFIGS = {' in content
-    assert '"parakeet-tdt-0.6b-v3"' in content
+    assert 'DEFAULT_MODEL_NAME = "parakeet-tdt-0.6b-v3"' in content
     
     # Verify INT8-only quantization setting is present
     assert '"quantization": "int8"' in content
     
-    # Verify HuggingFace ID is present
-    assert '"hf_id": "nemo-parakeet-tdt-0.6b-v3"' in content
+    # Verify HuggingFace IDs are present
+    assert 'ONNX_MODEL_ID = os.environ.get("PARAKEET_ONNX_MODEL", "nemo-parakeet-tdt-0.6b-v3")' in content
+    assert 'MLX_MODEL_ID = os.environ.get("PARAKEET_MLX_MODEL", "mlx-community/parakeet-tdt-0.6b-v3")' in content
+    assert '"hf_id": ONNX_MODEL_ID' in content
+    assert '"mlx_hf_id": MLX_MODEL_ID' in content
     
     print("✅ MODEL_CONFIGS structure test passed")
 
@@ -54,15 +57,30 @@ def test_lazy_loading_caching():
     
     # Verify model_cache exists
     assert 'model_cache = {}' in content
+    assert 'model_cache_lock = threading.Lock()' in content
     
     # Verify get_model function exists
     assert 'def get_model(model_name):' in content
     
     # Verify caching logic
-    assert 'if model_name in model_cache:' in content
-    assert 'model_cache[model_name] = model' in content
+    assert 'cache_key = (ACTIVE_BACKEND, model_name)' in content
+    assert 'if cache_key in model_cache:' in content
+    assert 'model_cache[cache_key] = model' in content
     
     print("✅ Lazy loading and caching test passed")
+
+
+def test_backend_selection():
+    """Test that MLX and ONNX backends are selectable."""
+    with open('app.py', 'r') as f:
+        content = f.read()
+
+    assert 'VALID_BACKENDS = {"auto", "mlx", "onnx"}' in content
+    assert 'return "mlx" if _is_apple_silicon() else "onnx"' in content
+    assert 'class MlxParakeetBackend:' in content
+    assert 'class OnnxParakeetBackend:' in content
+
+    print("✅ Backend selection test passed")
 
 
 def test_openai_compatibility():
@@ -71,7 +89,7 @@ def test_openai_compatibility():
         content = f.read()
     
     # Default model should be parakeet variant
-    assert 'model", "parakeet-tdt-0.6b-v3"' in content
+    assert 'model", DEFAULT_MODEL_NAME' in content
     
     # Verify model_to_use is called
     assert 'model_to_use = get_model(model_name)' in content
@@ -84,5 +102,6 @@ if __name__ == "__main__":
     test_model_configs()
     test_model_fallback_logic()
     test_lazy_loading_caching()
+    test_backend_selection()
     test_openai_compatibility()
     print("\n✅ All tests passed successfully!")

@@ -1,26 +1,16 @@
-host = "0.0.0.0"
-port = 5092
-threads = 8  # Optimized for 8 P-cores
-CHUNK_MINUTE = 1.5  # Target 90-second chunks with intelligent silence-based splitting
-
-# Intelligent chunking configuration
-SILENCE_THRESHOLD = "-40dB"  # Silence detection threshold
-SILENCE_MIN_DURATION = 0.5  # Minimum silence duration in seconds
-SILENCE_SEARCH_WINDOW = 30.0  # Search window in seconds around target split point
-SILENCE_DETECT_TIMEOUT = 300  # Timeout for silence detection in seconds
-MIN_SPLIT_GAP = 5.0  # Minimum gap between split points to prevent 0-length chunks
-
 import sys
 
 sys.stdout = sys.stderr
 
-import os, sys, json, math, re, threading
+import gc
+import os, sys, json, math, platform, queue, re, threading, time
 import shutil
 import uuid
 import subprocess
 import datetime
 import psutil
-from typing import List, Tuple, Optional
+from dataclasses import dataclass
+from typing import Any, List, Tuple, Optional
 from werkzeug.utils import secure_filename
 
 import flask
@@ -28,9 +18,48 @@ from flask import Flask, request, jsonify, render_template, Response
 from waitress import serve
 from pathlib import Path
 
+host = os.environ.get("HOST", "0.0.0.0")
+port = int(os.environ.get("PORT", "5092"))
+threads = int(os.environ.get("WAITRESS_THREADS", "8"))
+listen = os.environ.get("PARAKEET_LISTEN", "").strip()
+open_browser = os.environ.get("PARAKEET_OPEN_BROWSER", "1").strip().lower() not in {
+    "0",
+    "false",
+    "no",
+}
+
+CHUNK_MINUTE = float(os.environ.get("PARAKEET_CHUNK_MINUTE", "1.5"))
+
+# Intelligent chunking configuration
+SILENCE_THRESHOLD = os.environ.get("PARAKEET_SILENCE_THRESHOLD", "-40dB")
+SILENCE_MIN_DURATION = float(os.environ.get("PARAKEET_SILENCE_MIN_DURATION", "0.5"))
+SILENCE_SEARCH_WINDOW = float(os.environ.get("PARAKEET_SILENCE_SEARCH_WINDOW", "30.0"))
+SILENCE_DETECT_TIMEOUT = int(os.environ.get("PARAKEET_SILENCE_DETECT_TIMEOUT", "300"))
+MIN_SPLIT_GAP = float(os.environ.get("PARAKEET_MIN_SPLIT_GAP", "5.0"))
+
 ROOT_DIR = Path(os.getcwd()).as_posix()
-os.environ["HF_HOME"] = ROOT_DIR + "/models"
-os.environ["HF_HUB_CACHE"] = ROOT_DIR + "/models"
+
+
+def _default_model_cache_dir() -> Path:
+    configured_cache = (
+        os.environ.get("PARAKEET_MODEL_CACHE")
+        or os.environ.get("HF_HOME")
+        or os.environ.get("HF_HUB_CACHE")
+    )
+    if configured_cache:
+        return Path(configured_cache).expanduser()
+
+    repo_models_dir = Path(ROOT_DIR) / "models"
+    if repo_models_dir.exists() or not repo_models_dir.is_symlink():
+        return repo_models_dir
+
+    return Path.home() / ".cache" / "parakeet-fastapi-openai" / "models"
+
+
+MODEL_CACHE_DIR = _default_model_cache_dir()
+MODEL_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+os.environ["HF_HOME"] = MODEL_CACHE_DIR.as_posix()
+os.environ["HF_HUB_CACHE"] = MODEL_CACHE_DIR.as_posix()
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "true"
 if sys.platform == "win32":
     os.environ["PATH"] = ROOT_DIR + f";{ROOT_DIR}/ffmpeg;" + os.environ["PATH"]
@@ -41,138 +70,554 @@ if not API_KEY:
     sys.exit(1)
 
 
-# Model configurations for different precision variants
+DEFAULT_MODEL_NAME = "parakeet-tdt-0.6b-v3"
+MLX_MODEL_ID = os.environ.get("PARAKEET_MLX_MODEL", "mlx-community/parakeet-tdt-0.6b-v3")
+ONNX_MODEL_ID = os.environ.get("PARAKEET_ONNX_MODEL", "nemo-parakeet-tdt-0.6b-v3")
+VALID_BACKENDS = {"auto", "mlx", "onnx"}
+
+
+def _is_apple_silicon() -> bool:
+    return platform.system() == "Darwin" and platform.machine() == "arm64"
+
+
+def _select_backend() -> str:
+    requested = os.environ.get("PARAKEET_BACKEND", "auto").strip().lower()
+    if requested not in VALID_BACKENDS:
+        raise RuntimeError(
+            f"Invalid PARAKEET_BACKEND={requested!r}; expected one of {sorted(VALID_BACKENDS)}"
+        )
+    if requested == "auto":
+        return "mlx" if _is_apple_silicon() else "onnx"
+    return requested
+
+
+ACTIVE_BACKEND = _select_backend()
+
+
+def _float_env(name: str, default: float) -> float:
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return default
+    return float(value)
+
+
+def _optional_float_env(name: str) -> Optional[float]:
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return None
+    return float(value)
+
+
+def _optional_int_env(name: str) -> Optional[int]:
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return None
+    return int(value)
+
+
+def _parse_byte_size(value: str) -> int:
+    value = value.strip().lower()
+    match = re.fullmatch(r"(\d+(?:\.\d+)?)\s*([kmgt]?i?b?|bytes?)?", value)
+    if not match:
+        raise ValueError(f"Invalid byte size: {value!r}")
+
+    number = float(match.group(1))
+    unit = match.group(2) or "b"
+    unit_multipliers = {
+        "": 1,
+        "b": 1,
+        "byte": 1,
+        "bytes": 1,
+        "k": 1024,
+        "kb": 1024,
+        "kib": 1024,
+        "m": 1024**2,
+        "mb": 1024**2,
+        "mib": 1024**2,
+        "g": 1024**3,
+        "gb": 1024**3,
+        "gib": 1024**3,
+        "t": 1024**4,
+        "tb": 1024**4,
+        "tib": 1024**4,
+    }
+    return int(number * unit_multipliers[unit])
+
+
+def _optional_byte_env(name: str) -> Optional[int]:
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return None
+    return _parse_byte_size(value)
+
+
+def _format_bytes(num_bytes: Optional[int]) -> str:
+    if num_bytes is None:
+        return "unset"
+    value = float(num_bytes)
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if value < 1024 or unit == "TB":
+            return f"{value:.2f} {unit}"
+        value /= 1024
+
+
+MLX_MEMORY_LIMIT = _optional_byte_env("PARAKEET_MLX_MEMORY_LIMIT")
+MLX_CACHE_LIMIT = _optional_byte_env("PARAKEET_MLX_CACHE_LIMIT")
+MLX_WIRED_LIMIT = _optional_byte_env("PARAKEET_MLX_WIRED_LIMIT")
+MAX_RSS_BYTES = _optional_byte_env("PARAKEET_MAX_RSS")
+RSS_WATCH_INTERVAL = _float_env("PARAKEET_RSS_WATCH_INTERVAL", 5.0)
+MAX_ACTIVE_TRANSCRIPTIONS = max(
+    1,
+    int(
+        os.environ.get(
+            "PARAKEET_MAX_ACTIVE_TRANSCRIPTIONS",
+            "1" if ACTIVE_BACKEND == "mlx" else str(max(1, threads)),
+        )
+    ),
+)
+MAX_UPLOAD_MB = _float_env("PARAKEET_MAX_UPLOAD_MB", 2000.0)
+
+
+def _configure_mlx_memory(mx_module) -> None:
+    limits = [
+        ("PARAKEET_MLX_MEMORY_LIMIT", MLX_MEMORY_LIMIT, mx_module.set_memory_limit),
+        ("PARAKEET_MLX_CACHE_LIMIT", MLX_CACHE_LIMIT, mx_module.set_cache_limit),
+        ("PARAKEET_MLX_WIRED_LIMIT", MLX_WIRED_LIMIT, mx_module.set_wired_limit),
+    ]
+    for env_name, limit, setter in limits:
+        if limit is None:
+            continue
+        previous = setter(limit)
+        print(
+            f"MLX {env_name}={_format_bytes(limit)} "
+            f"(previous {_format_bytes(previous)})"
+        )
+
+
+def _start_memory_watchdog() -> None:
+    if MAX_RSS_BYTES is None:
+        return
+
+    def watch_rss():
+        process = psutil.Process(os.getpid())
+        while True:
+            time.sleep(RSS_WATCH_INTERVAL)
+            rss = process.memory_info().rss
+            if rss > MAX_RSS_BYTES:
+                print(
+                    "RSS watchdog exiting for launchd restart: "
+                    f"rss={_format_bytes(rss)} limit={_format_bytes(MAX_RSS_BYTES)}"
+                )
+                os._exit(75)
+
+    threading.Thread(target=watch_rss, daemon=True, name="rss-watchdog").start()
+    print(f"RSS watchdog limit: {_format_bytes(MAX_RSS_BYTES)}")
+
+
+# Model configurations for different precision variants.
 MODEL_CONFIGS = {
-    "parakeet-tdt-0.6b-v3": {
-        "hf_id": "nemo-parakeet-tdt-0.6b-v3",
+    DEFAULT_MODEL_NAME: {
+        "hf_id": ONNX_MODEL_ID,
         "quantization": "int8",
-        "description": "INT8 (fastest)"
+        "mlx_hf_id": MLX_MODEL_ID,
+        "description": "Parakeet TDT 0.6B v3",
     },
 }
 
 # Model cache for lazy loading
 model_cache = {}
+model_cache_lock = threading.Lock()
+
+
+@dataclass
+class CompatRecognitionResult:
+    text: str
+    tokens: List[str]
+    timestamps: List[float]
+    segments: Optional[List[dict]] = None
+    words: Optional[List[dict]] = None
+
+
+class OnnxParakeetBackend:
+    backend = "onnx"
+
+    def __init__(self, config: dict):
+        print("\nInitializing ONNX Runtime...")
+        import onnx_asr
+        import onnxruntime as ort
+
+        available_providers = ort.get_available_providers()
+        print(f"Available providers: {available_providers}")
+        if "CPUExecutionProvider" not in available_providers:
+            raise RuntimeError("CPUExecutionProvider is not available in onnxruntime.")
+
+        providers_to_try = ["CPUExecutionProvider"]
+        print(f"Using providers: {providers_to_try}")
+        print("\nLoading Parakeet TDT 0.6B V3 ONNX model with INT8 quantization (CPU-only)...")
+
+        sess_options = ort.SessionOptions()
+        sess_options.intra_op_num_threads = int(os.environ.get("ONNX_INTRA_OP_THREADS", "4"))
+        sess_options.inter_op_num_threads = int(os.environ.get("ONNX_INTER_OP_THREADS", "1"))
+        sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+
+        self._model = onnx_asr.load_model(
+            config["hf_id"],
+            quantization=config["quantization"],
+            providers=providers_to_try,
+            sess_options=sess_options,
+        ).with_timestamps()
+        print("ONNX model loaded successfully with CPU optimization!")
+
+    def recognize(self, audio_path: str) -> Any:
+        return self._model.recognize(audio_path)
+
+
+class MlxParakeetBackend:
+    backend = "mlx"
+
+    def __init__(self, config: dict):
+        self._jobs = queue.Queue()
+        self._ready = threading.Event()
+        self._startup_error = None
+        self._mx = None
+        self._worker = threading.Thread(
+            target=self._worker_main,
+            args=(config,),
+            daemon=True,
+            name="parakeet-mlx-worker",
+        )
+        self._worker.start()
+        self._ready.wait()
+        if self._startup_error is not None:
+            raise self._startup_error
+
+    def recognize(self, audio_path: str) -> CompatRecognitionResult:
+        done = threading.Event()
+        holder = {}
+        self._jobs.put((audio_path, done, holder))
+        done.wait()
+        if "error" in holder:
+            raise holder["error"]
+        return holder["result"]
+
+    def _worker_main(self, config: dict):
+        try:
+            print("\nInitializing MLX Runtime...")
+            try:
+                import mlx.core as mx
+                from mlx.core import bfloat16, float32
+                from parakeet_mlx import Beam, DecodingConfig, Greedy, SentenceConfig, from_pretrained
+            except ImportError as exc:
+                raise RuntimeError(
+                    "MLX backend requires parakeet-mlx. Install it with "
+                    "`uv pip install -r requirements-mlx.txt`."
+                ) from exc
+            self._mx = mx
+            _configure_mlx_memory(mx)
+
+            dtype_name = os.environ.get("PARAKEET_MLX_DTYPE", "bf16").strip().lower()
+            if dtype_name not in {"bf16", "fp32"}:
+                raise RuntimeError("PARAKEET_MLX_DTYPE must be bf16 or fp32")
+
+            self._dtype = float32 if dtype_name == "fp32" else bfloat16
+            self._chunk_duration = _float_env("PARAKEET_MLX_CHUNK_DURATION", 0.0)
+            self._overlap_duration = _float_env("PARAKEET_MLX_OVERLAP_DURATION", 15.0)
+
+            decoding = os.environ.get("PARAKEET_MLX_DECODING", "greedy").strip().lower()
+            if decoding == "beam":
+                decoding_strategy = Beam(
+                    beam_size=int(os.environ.get("PARAKEET_MLX_BEAM_SIZE", "5")),
+                    length_penalty=_float_env("PARAKEET_MLX_LENGTH_PENALTY", 0.013),
+                    patience=_float_env("PARAKEET_MLX_PATIENCE", 3.5),
+                    duration_reward=_float_env("PARAKEET_MLX_DURATION_REWARD", 0.67),
+                )
+            elif decoding == "greedy":
+                decoding_strategy = Greedy()
+            else:
+                raise RuntimeError("PARAKEET_MLX_DECODING must be greedy or beam")
+
+            self._decoding_config = DecodingConfig(
+                decoding=decoding_strategy,
+                sentence=SentenceConfig(
+                    max_words=_optional_int_env("PARAKEET_MLX_MAX_WORDS"),
+                    silence_gap=_optional_float_env("PARAKEET_MLX_SILENCE_GAP"),
+                    max_duration=_optional_float_env("PARAKEET_MLX_MAX_DURATION"),
+                ),
+            )
+
+            model_id = config["mlx_hf_id"]
+            print(f"Loading MLX model: {model_id} ({dtype_name})")
+            self._model = from_pretrained(
+                model_id,
+                dtype=self._dtype,
+                cache_dir=MODEL_CACHE_DIR,
+            )
+
+            if os.environ.get("PARAKEET_MLX_LOCAL_ATTENTION", "").strip().lower() in {
+                "1",
+                "true",
+                "yes",
+            }:
+                context_size = int(os.environ.get("PARAKEET_MLX_LOCAL_ATTENTION_CTX", "256"))
+                self._model.encoder.set_attention_model(
+                    "rel_pos_local_attn",
+                    (context_size, context_size),
+                )
+
+            print("MLX model loaded successfully on Apple Silicon!")
+            self._ready.set()
+
+            while True:
+                audio_path, done, holder = self._jobs.get()
+                try:
+                    holder["result"] = self._recognize_in_worker(audio_path)
+                except Exception as exc:
+                    holder["error"] = exc
+                finally:
+                    self._clear_runtime_cache("after transcribe")
+                    done.set()
+        except Exception as exc:
+            self._startup_error = exc
+            self._ready.set()
+
+    def _clear_runtime_cache(self, context: str) -> None:
+        if self._mx is None:
+            return
+        try:
+            gc.collect()
+            active = self._mx.get_active_memory()
+            cache = self._mx.get_cache_memory()
+            peak = self._mx.get_peak_memory()
+            self._mx.clear_cache()
+            cache_after = self._mx.get_cache_memory()
+            self._mx.reset_peak_memory()
+            print(
+                f"MLX memory {context}: active={_format_bytes(active)} "
+                f"cache={_format_bytes(cache)} peak={_format_bytes(peak)} "
+                f"cache_after_clear={_format_bytes(cache_after)}"
+            )
+        except Exception as exc:
+            print(f"MLX cache cleanup failed: {exc}")
+
+    def _recognize_in_worker(self, audio_path: str) -> CompatRecognitionResult:
+        kwargs = {
+            "dtype": self._dtype,
+            "chunk_duration": self._chunk_duration if self._chunk_duration > 0 else None,
+            "overlap_duration": self._overlap_duration,
+            "decoding_config": self._decoding_config,
+        }
+        result = self._model.transcribe(audio_path, **kwargs)
+
+        tokens = []
+        timestamps = []
+        segments = []
+        words = []
+
+        for sentence in getattr(result, "sentences", []) or []:
+            sentence_text = getattr(sentence, "text", "").strip()
+            sentence_start = float(getattr(sentence, "start", 0.0) or 0.0)
+            sentence_end = float(getattr(sentence, "end", sentence_start) or sentence_start)
+            if sentence_text:
+                segments.append(
+                    {
+                        "start": sentence_start,
+                        "end": sentence_end,
+                        "segment": sentence_text,
+                    }
+                )
+
+            for token in getattr(sentence, "tokens", []) or []:
+                token_text = getattr(token, "text", "")
+                token_start = float(getattr(token, "start", sentence_start) or sentence_start)
+                token_end = float(getattr(token, "end", token_start) or token_start)
+                tokens.append(token_text)
+                timestamps.append(token_start)
+                cleaned_token = token_text.replace("\u2581", " ").strip()
+                if cleaned_token:
+                    words.append(
+                        {
+                            "start": token_start,
+                            "end": token_end,
+                            "word": cleaned_token,
+                        }
+                    )
+
+        text = getattr(result, "text", "") or ""
+        if text and not segments:
+            start_time = timestamps[0] if timestamps else 0.0
+            end_time = words[-1]["end"] if words else start_time + 0.1
+            segments.append({"start": start_time, "end": end_time, "segment": text})
+
+        return CompatRecognitionResult(
+            text=text,
+            tokens=tokens,
+            timestamps=timestamps,
+            segments=segments,
+            words=words,
+        )
+
+
+def get_model(model_name):
+    """
+    Get or load a model by name with lazy loading and caching.
+
+    Args:
+        model_name: Name of the model (key in MODEL_CONFIGS)
+
+    Returns:
+        Loaded ASR model instance
+    """
+    # Default to Parakeet if model not found.
+    if model_name not in MODEL_CONFIGS:
+        print(f"⚠️ Unknown model '{model_name}', falling back to default model")
+        model_name = DEFAULT_MODEL_NAME
+
+    cache_key = (ACTIVE_BACKEND, model_name)
+    with model_cache_lock:
+        if cache_key in model_cache:
+            print(f"Using cached {ACTIVE_BACKEND} model: {model_name}")
+            return model_cache[cache_key]
+
+        print(f"Loading {ACTIVE_BACKEND} model: {model_name}")
+        config = MODEL_CONFIGS[model_name]
+        if ACTIVE_BACKEND == "mlx":
+            model = MlxParakeetBackend(config)
+        elif ACTIVE_BACKEND == "onnx":
+            model = OnnxParakeetBackend(config)
+        else:
+            raise RuntimeError(f"Unsupported backend: {ACTIVE_BACKEND}")
+
+        model_cache[cache_key] = model
+        return model
+
+
+_start_memory_watchdog()
 
 try:
-    print("\nInitializing ONNX Runtime...")
-    import onnx_asr
-    import onnxruntime as ort
-
-    # Detect available providers
-    available_providers = ort.get_available_providers()
-    print(f"Available providers: {available_providers}")
-    if "CPUExecutionProvider" not in available_providers:
-        raise RuntimeError("CPUExecutionProvider is not available in onnxruntime.")
-
-    # Keep CPU-first behavior used by prod deployments.
-    providers_to_try = ["CPUExecutionProvider"]
-    print(f"Using providers: {providers_to_try}")
-
-    # Load default INT8 model at startup
-    print("\nLoading default Parakeet TDT 0.6B V3 ONNX model with INT8 quantization (CPU-only)...")
-
-    # Configure session options for optimal CPU performance
-    sess_options = ort.SessionOptions()
-    sess_options.intra_op_num_threads = 4
-    sess_options.inter_op_num_threads = 1
-    sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
-    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-
-    default_config = MODEL_CONFIGS["parakeet-tdt-0.6b-v3"]
-    asr_model = onnx_asr.load_model(
-        default_config["hf_id"],
-        quantization=default_config["quantization"],
-        providers=providers_to_try,
-        sess_options=sess_options,
-    ).with_timestamps()
-    
-    # Cache the default model
-    model_cache["parakeet-tdt-0.6b-v3"] = asr_model
-    
-    print("Default model loaded successfully with CPU optimization!")
+    print(f"Selected Parakeet backend: {ACTIVE_BACKEND}")
+    get_model(DEFAULT_MODEL_NAME)
 except Exception as e:
     print(f"❌ Model loading failed: {e}")
     import traceback
+
     traceback.print_exc()
     sys.exit()
 
 print("=" * 50)
 
 
-def get_model(model_name):
-    """
-    Get or load a model by name with lazy loading and caching.
-    
-    Args:
-        model_name: Name of the model (key in MODEL_CONFIGS)
-        
-    Returns:
-        Loaded ASR model instance
-    """
-    # Default to INT8 if model not found
-    if model_name not in MODEL_CONFIGS:
-        print(f"⚠️ Unknown model '{model_name}', falling back to default INT8 model")
-        model_name = "parakeet-tdt-0.6b-v3"
-    
-    # Return cached model if available
-    if model_name in model_cache:
-        print(f"Using cached model: {model_name}")
-        return model_cache[model_name]
-    
-    # Load new model
-    print(f"Loading model: {model_name}")
-    config = MODEL_CONFIGS[model_name]
-    
-    try:
-        import onnxruntime as ort
-
-        # Reuse CPU provider from startup defaults.
-        available_providers = ort.get_available_providers()
-        if "CPUExecutionProvider" not in available_providers:
-            raise RuntimeError("CPUExecutionProvider is not available in onnxruntime.")
-        providers_to_try = ["CPUExecutionProvider"]
-
-        # Configure session options
-        sess_options = ort.SessionOptions()
-        sess_options.intra_op_num_threads = 4
-        sess_options.inter_op_num_threads = 1
-        sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
-        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-        
-        model = onnx_asr.load_model(
-            config["hf_id"],
-            quantization=config["quantization"],
-            providers=providers_to_try,
-            sess_options=sess_options,
-        ).with_timestamps()
-        
-        # Cache the loaded model
-        model_cache[model_name] = model
-        print(f"Model {model_name} loaded successfully")
-        
-        return model
-    except Exception as e:
-        print(f"❌ Failed to load model {model_name}: {e}")
-        import traceback
-        traceback.print_exc()
-        # Try to return the default cached model if available
-        if "parakeet-tdt-0.6b-v3" in model_cache:
-            print(f"⚠️ Falling back to cached default model")
-            return model_cache["parakeet-tdt-0.6b-v3"]
-        else:
-            # If we can't even get the default, we have a serious problem
-            raise RuntimeError(f"Failed to load model {model_name} and no fallback available")
-
-
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "temp_uploads"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-app.config["MAX_CONTENT_LENGTH"] = 2000 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = int(MAX_UPLOAD_MB * 1024 * 1024)
 
 # Progress tracking
 progress_tracker = {}
+progress_tracker_lock = threading.Lock()
+PROGRESS_TTL_SECONDS = int(os.environ.get("PARAKEET_PROGRESS_TTL_SECONDS", "3600"))
+PROGRESS_MAX_JOBS = int(os.environ.get("PARAKEET_PROGRESS_MAX_JOBS", "100"))
+PROGRESS_PARTIAL_MAX_CHARS = int(
+    os.environ.get("PARAKEET_PROGRESS_PARTIAL_MAX_CHARS", "20000")
+)
+transcription_slots = threading.BoundedSemaphore(MAX_ACTIVE_TRANSCRIPTIONS)
 PROTECTED_PATHS = {"/status", "/metrics"}
 PROTECTED_PREFIXES = ("/v1/", "/progress/")
+
+
+def _trim_progress_text(text: str) -> str:
+    if PROGRESS_PARTIAL_MAX_CHARS <= 0 or len(text) <= PROGRESS_PARTIAL_MAX_CHARS:
+        return text
+    return text[-PROGRESS_PARTIAL_MAX_CHARS:]
+
+
+def _prune_progress_locked(now: Optional[float] = None) -> None:
+    now = time.time() if now is None else now
+    if PROGRESS_TTL_SECONDS > 0:
+        cutoff = now - PROGRESS_TTL_SECONDS
+        stale_job_ids = [
+            job_id
+            for job_id, progress in progress_tracker.items()
+            if progress.get("status") != "processing"
+            and progress.get("updated_at", progress.get("created_at", 0)) < cutoff
+        ]
+        for job_id in stale_job_ids:
+            progress_tracker.pop(job_id, None)
+
+    if PROGRESS_MAX_JOBS > 0 and len(progress_tracker) > PROGRESS_MAX_JOBS:
+        removable = sorted(
+            (
+                (progress.get("updated_at", progress.get("created_at", 0)), job_id)
+                for job_id, progress in progress_tracker.items()
+                if progress.get("status") != "processing"
+            )
+        )
+        overflow = len(progress_tracker) - PROGRESS_MAX_JOBS
+        for _, job_id in removable[:overflow]:
+            progress_tracker.pop(job_id, None)
+
+
+def _set_progress(job_id: str, progress: dict) -> None:
+    now = time.time()
+    progress = {
+        **progress,
+        "created_at": now,
+        "updated_at": now,
+    }
+    progress["partial_text"] = _trim_progress_text(progress.get("partial_text", ""))
+    with progress_tracker_lock:
+        _prune_progress_locked(now)
+        progress_tracker[job_id] = progress
+
+
+def _update_progress(job_id: str, **updates) -> None:
+    now = time.time()
+    with progress_tracker_lock:
+        progress = progress_tracker.setdefault(
+            job_id,
+            {
+                "status": "processing",
+                "current_chunk": 0,
+                "total_chunks": 0,
+                "progress_percent": 0,
+                "partial_text": "",
+                "created_at": now,
+            },
+        )
+        progress.update(updates)
+        progress["updated_at"] = now
+        progress["partial_text"] = _trim_progress_text(progress.get("partial_text", ""))
+        _prune_progress_locked(now)
+
+
+def _append_progress_text(job_id: str, text: str) -> None:
+    if not text:
+        return
+    now = time.time()
+    with progress_tracker_lock:
+        progress = progress_tracker.get(job_id)
+        if progress is None:
+            return
+        progress["partial_text"] = _trim_progress_text(
+            progress.get("partial_text", "") + text
+        )
+        progress["updated_at"] = now
+
+
+def _get_progress_snapshot(job_id: str) -> Optional[dict]:
+    with progress_tracker_lock:
+        _prune_progress_locked()
+        progress = progress_tracker.get(job_id)
+        return dict(progress) if progress is not None else None
+
+
+def _get_processing_progress() -> Optional[Tuple[str, dict]]:
+    with progress_tracker_lock:
+        _prune_progress_locked()
+        for job_id, progress in progress_tracker.items():
+            if progress.get("status") == "processing":
+                return job_id, dict(progress)
+    return None
 
 
 def _extract_api_key() -> str:
@@ -412,8 +857,10 @@ def health():
     return jsonify({
         "status": "healthy",
         "models": available_models,
-        "default_model": "parakeet-tdt-0.6b-v3",
-        "speedup": "20.7x"
+        "default_model": DEFAULT_MODEL_NAME,
+        "backend": ACTIVE_BACKEND,
+        "mlx_model": MLX_MODEL_ID if ACTIVE_BACKEND == "mlx" else None,
+        "onnx_model": ONNX_MODEL_ID if ACTIVE_BACKEND == "onnx" else None,
     })
 
 
@@ -430,7 +877,7 @@ def openapi_spec():
         "openapi": "3.0.0",
         "info": {
             "title": "Parakeet Transcription API",
-            "description": "High-performance ONNX-optimized speech transcription API compatible with OpenAI.",
+            "description": "High-performance Parakeet speech transcription API compatible with OpenAI.",
             "version": "1.0.0"
         },
         "servers": [{"url": request.host_url.rstrip("/")}],
@@ -464,9 +911,9 @@ def openapi_spec():
                                         },
                                         "model": {
                                             "type": "string",
-                                            "default": "parakeet-tdt-0.6b-v3",
-                                            "enum": ["parakeet-tdt-0.6b-v3"],
-                                            "description": "Model to use: parakeet-tdt-0.6b-v3 (INT8, fastest)"
+                                            "default": DEFAULT_MODEL_NAME,
+                                            "enum": [DEFAULT_MODEL_NAME],
+                                            "description": f"Model to use: {DEFAULT_MODEL_NAME}"
                                         },
                                         "response_format": {
                                             "type": "string",
@@ -510,17 +957,19 @@ def openapi_spec():
 @app.route("/progress/<job_id>")
 def get_progress(job_id):
     """Get transcription progress for a job"""
-    if job_id in progress_tracker:
-        return jsonify(progress_tracker[job_id])
+    progress = _get_progress_snapshot(job_id)
+    if progress is not None:
+        return jsonify(progress)
     return jsonify({"status": "not_found"}), 404
 
 
 @app.route("/status")
 def get_status():
     """Get status of the most recent active job"""
-    for job_id, progress in progress_tracker.items():
-        if progress.get("status") == "processing":
-            return jsonify({"job_id": job_id, **progress})
+    processing = _get_processing_progress()
+    if processing is not None:
+        job_id, progress = processing
+        return jsonify({"job_id": job_id, **progress})
     return jsonify({"status": "idle"})
 
 
@@ -529,11 +978,16 @@ def get_metrics():
     """Get real-time CPU and RAM metrics"""
     cpu_percent = psutil.cpu_percent(interval=0.1)
     memory = psutil.virtual_memory()
+    process_rss = psutil.Process(os.getpid()).memory_info().rss
     return jsonify({
         "cpu_percent": cpu_percent,
         "ram_percent": memory.percent,
         "ram_used_gb": round(memory.used / (1024**3), 2),
-        "ram_total_gb": round(memory.total / (1024**3), 2)
+        "ram_total_gb": round(memory.total / (1024**3), 2),
+        "process_rss_gb": round(process_rss / (1024**3), 2),
+        "process_max_rss_gb": (
+            round(MAX_RSS_BYTES / (1024**3), 2) if MAX_RSS_BYTES else None
+        ),
     })
 
 
@@ -546,22 +1000,31 @@ def transcribe_audio():
         return jsonify({"error": "No file selected"}), 400
 
     # OpenAI compatible parameters
-    model_name = request.form.get("model", "parakeet-tdt-0.6b-v3").lower()
-    response_format = request.form.get("response_format", "json")
+    model_name = request.form.get("model", DEFAULT_MODEL_NAME).lower()
+    response_format = request.form.get("response_format", "json").lower()
     legacy_srt_words = model_name == "parakeet_srt_words"
 
     print(f"Request Model: {model_name} | Format: {response_format}")
 
     if legacy_srt_words:
-        model_name = "parakeet-tdt-0.6b-v3"
+        model_name = DEFAULT_MODEL_NAME
 
     # Validate model and warn if unknown
     if model_name not in MODEL_CONFIGS:
         print(f"⚠️ Unknown model '{model_name}' requested, using default")
-        model_name = "parakeet-tdt-0.6b-v3"
+        model_name = DEFAULT_MODEL_NAME
 
-    # Get the appropriate model (with lazy loading)
-    model_to_use = get_model(model_name)
+    slot_acquired = transcription_slots.acquire(blocking=False)
+    if not slot_acquired:
+        return jsonify(
+            {
+                "error": "Too many active transcriptions",
+                "details": (
+                    "The local MLX backend is configured for "
+                    f"{MAX_ACTIVE_TRANSCRIPTIONS} active transcription(s)."
+                ),
+            }
+        ), 429
 
     original_filename = secure_filename(file.filename)
 
@@ -574,6 +1037,9 @@ def transcribe_audio():
     temp_files_to_clean = []
 
     try:
+        # Get the appropriate model (with lazy loading)
+        model_to_use = get_model(model_name)
+
         file.save(temp_original_path)
         temp_files_to_clean.append(temp_original_path)
 
@@ -636,13 +1102,16 @@ def transcribe_audio():
             chunk_boundaries = [min(i * CHUNK_DURATION_SECONDS, total_duration) for i in range(num_chunks + 1)]
         
         # Initialize progress tracking
-        progress_tracker[unique_id] = {
-            "status": "processing",
-            "current_chunk": 0,
-            "total_chunks": num_chunks,
-            "progress_percent": 0,
-            "partial_text": ""
-        }
+        _set_progress(
+            unique_id,
+            {
+                "status": "processing",
+                "current_chunk": 0,
+                "total_chunks": num_chunks,
+                "progress_percent": 0,
+                "partial_text": "",
+            },
+        )
         
         print(
             f"[{unique_id}] Total duration: {total_duration:.2f}s. Splitting into {num_chunks} chunks."
@@ -709,51 +1178,82 @@ def transcribe_audio():
             text = text.replace(" '", "'")
             return text
 
+        def append_recognition_result(result, offset: float):
+            if not result:
+                return
+
+            result_segments = getattr(result, "segments", None)
+            result_words = getattr(result, "words", None)
+            if result_segments:
+                for result_segment in result_segments:
+                    cleaned_segment = clean_text(result_segment.get("segment", ""))
+                    if not cleaned_segment:
+                        continue
+                    segment = {
+                        "start": float(result_segment.get("start", 0.0)) + offset,
+                        "end": float(result_segment.get("end", 0.0)) + offset,
+                        "segment": cleaned_segment,
+                    }
+                    all_segments.append(segment)
+                    _append_progress_text(unique_id, cleaned_segment + " ")
+
+                for result_word in result_words or []:
+                    word_text = clean_text(result_word.get("word", ""))
+                    if not word_text:
+                        continue
+                    all_words.append(
+                        {
+                            "start": float(result_word.get("start", 0.0)) + offset,
+                            "end": float(result_word.get("end", 0.0)) + offset,
+                            "word": word_text,
+                        }
+                    )
+                return
+
+            if not getattr(result, "text", ""):
+                return
+
+            start_time = result.timestamps[0] if result.timestamps else 0
+            end_time = (
+                result.timestamps[-1]
+                if len(result.timestamps) > 1
+                else start_time + 0.1
+            )
+
+            cleaned_text = clean_text(result.text)
+            segment = {
+                "start": start_time + offset,
+                "end": end_time + offset,
+                "segment": cleaned_text,
+            }
+            all_segments.append(segment)
+            _append_progress_text(unique_id, cleaned_text + " ")
+
+            for j, (token, timestamp) in enumerate(zip(result.tokens, result.timestamps)):
+                if j < len(result.timestamps) - 1:
+                    word_end = result.timestamps[j + 1]
+                else:
+                    word_end = end_time
+
+                clean_token = token.replace("\u2581", " ").strip()
+                word = {
+                    "start": timestamp + offset,
+                    "end": word_end + offset,
+                    "word": clean_token,
+                }
+                all_words.append(word)
+
         for i, chunk_path in enumerate(chunk_paths):
-            progress_tracker[unique_id].update({
-                "current_chunk": i + 1,
-                "progress_percent": int((i + 1) / num_chunks * 100)
-            })
+            _update_progress(
+                unique_id,
+                current_chunk=i + 1,
+                progress_percent=int((i + 1) / num_chunks * 100),
+            )
             print(f"[{unique_id}] Transcribing chunk {i + 1}/{num_chunks}...")
 
             result = model_to_use.recognize(chunk_path)
-
-            if result and result.text:
-                start_time = result.timestamps[0] if result.timestamps else 0
-                end_time = (
-                    result.timestamps[-1]
-                    if len(result.timestamps) > 1
-                    else start_time + 0.1
-                )
-
-                cleaned_text = clean_text(result.text)
-
-                segment = {
-                    "start": start_time + cumulative_time_offset,
-                    "end": end_time + cumulative_time_offset,
-                    "segment": cleaned_text,
-                }
-                all_segments.append(segment)
-                
-                # Update partial text for real-time streaming
-                progress_tracker[unique_id]["partial_text"] += cleaned_text + " "
-
-                for j, (token, timestamp) in enumerate(
-                    zip(result.tokens, result.timestamps)
-                ):
-                    if j < len(result.timestamps) - 1:
-                        word_end = result.timestamps[j + 1]
-                    else:
-                        word_end = end_time
-
-                    # Clean tokens too
-                    clean_token = token.replace("\u2581", " ").strip()
-                    word = {
-                        "start": timestamp + cumulative_time_offset,
-                        "end": word_end + cumulative_time_offset,
-                        "word": clean_token,
-                    }
-                    all_words.append(word)
+            append_recognition_result(result, cumulative_time_offset)
+            del result
 
             # Use planned chunk duration instead of ffprobe
             cumulative_time_offset += chunk_durations[i]
@@ -761,8 +1261,7 @@ def transcribe_audio():
         print(f"[{unique_id}] All chunks transcribed, merging results.")
         
         # Update progress to complete
-        progress_tracker[unique_id]["status"] = "complete"
-        progress_tracker[unique_id]["progress_percent"] = 100
+        _update_progress(unique_id, status="complete", progress_percent=100)
 
         if not all_segments:
             # Return empty structure if nothing found, consistent with failures or silence?
@@ -825,6 +1324,7 @@ def transcribe_audio():
         import traceback
 
         traceback.print_exc()
+        _update_progress(unique_id, status="failed", error=str(e))
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
     finally:
         print(f"[{unique_id}] Cleaning up temporary files...")
@@ -832,6 +1332,7 @@ def transcribe_audio():
             if os.path.exists(f_path):
                 os.remove(f_path)
         print(f"[{unique_id}] Temporary files cleaned.")
+        transcription_slots.release()
 
 
 def openweb():
@@ -842,12 +1343,26 @@ def openweb():
 
 
 if __name__ == "__main__":
+    listen_addresses = [
+        item for item in re.split(r"[,\s]+", listen) if item
+    ]
     print(f"Starting server...")
+    print(f"Backend: {ACTIVE_BACKEND}")
     print(f"Web interface: http://127.0.0.1:{port}")
-    print(f"API Endpoint: POST http://{host}:{port}/v1/audio/transcriptions")
+    if listen_addresses:
+        print(f"Listening on: {', '.join(listen_addresses)}")
+        api_host = listen_addresses[0]
+    else:
+        print(f"Listening on: {host}:{port}")
+        api_host = f"{host}:{port}"
+    print(f"API Endpoint: POST http://{api_host}/v1/audio/transcriptions")
     print(f"Running with {threads} threads.")
-    print(f"Starting web browser thread...")
-    threading.Thread(target=openweb).start()
+    if open_browser:
+        print(f"Starting web browser thread...")
+        threading.Thread(target=openweb).start()
     print(f"Starting waitress server...")
-    serve(app, host=host, port=port, threads=threads)
-    print(f"Server started!")
+    print(f"Server ready.")
+    if listen_addresses:
+        serve(app, listen=listen_addresses, threads=threads)
+    else:
+        serve(app, host=host, port=port, threads=threads)

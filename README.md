@@ -127,11 +127,52 @@ cd parakeet-tdt-0.6b-v3-fastapi-openai
 pip install -r requirements.txt
 ```
 
+### Apple Silicon MLX (macOS, no Docker)
+
+For local Apple Silicon inference, use the MLX backend. It keeps the same
+OpenAI-compatible API but loads `mlx-community/parakeet-tdt-0.6b-v3` through
+`parakeet-mlx`.
+
+```bash
+cd ~/code/parakeet-tdt-0.6b-v3-fastapi-openai
+export API_KEY="replace-with-strong-key"
+./scripts/run_mlx_macos.sh
+```
+
+If `API_KEY` is not already exported, the launcher will also read it from the
+repo `.env` file. The launcher creates `.venv-mlx`, installs
+`requirements-mlx.txt`, uses `~/.cache/parakeet-fastapi-openai/models` for model
+downloads, and binds to localhost plus your Tailscale IPv4 address when the
+Tailscale CLI is available. The launcher checks `PATH` first, then the standard
+macOS app CLI path at `/Applications/Tailscale.app/Contents/MacOS/Tailscale`.
+
+Useful overrides:
+
+```bash
+export PORT=5092
+export PARAKEET_BACKEND=mlx
+export PARAKEET_LISTEN="127.0.0.1:5092 100.x.y.z:5092"
+export PARAKEET_MLX_DTYPE=bf16   # or fp32
+export PARAKEET_MLX_DECODING=greedy   # or beam
+./scripts/run_mlx_macos.sh
+```
+
+If you do not want Tailscale exposure, set only localhost:
+
+```bash
+export PARAKEET_LISTEN="127.0.0.1:5092"
+./scripts/run_mlx_macos.sh
+```
+
+For launch-at-login setup, observability, Tailscale endpoint checks, and the
+local service menu bar app spec, see [MACOS_SERVICE.md](MACOS_SERVICE.md).
+
 ## Usage
 
 ### Start the Server
 
-Parakeet TDT provides an OpenAI-compatible API server.
+Parakeet TDT provides an OpenAI-compatible API server. By default,
+`PARAKEET_BACKEND=auto` uses MLX on Apple Silicon and ONNX elsewhere.
 
 ```bash
 conda activate parakeet-onnx
@@ -156,7 +197,7 @@ client = OpenAI(
 
 audio_file = open("audio.mp3", "rb")
 transcript = client.audio.transcriptions.create(
-  model="parakeet-tdt-0.6b-v3",  # or "istupakov/parakeet-tdt-0.6b-v3-onnx" or "grikdotnet/parakeet-tdt-0.6b-fp16"
+  model="parakeet-tdt-0.6b-v3",
   file=audio_file,
   response_format="text"
 )
@@ -164,33 +205,29 @@ transcript = client.audio.transcriptions.create(
 print(transcript)
 ```
 
-### Model Selection
+### Runtime Selection
 
-The API supports multiple model variants with different precision levels:
+The public model name stays `parakeet-tdt-0.6b-v3`. The runtime is selected by
+environment variable:
 
-| Model Name | Precision | Speed | Description |
-|------------|-----------|-------|-------------|
-| `parakeet-tdt-0.6b-v3` | INT8 | Fastest | Default model with 8-bit quantization (recommended) |
-| `istupakov/parakeet-tdt-0.6b-v3-onnx` | FP32 | Slower | Full precision for maximum accuracy |
-| `grikdotnet/parakeet-tdt-0.6b-fp16` | FP16 | Medium | Half precision, balanced speed and accuracy |
+| Variable | Values | Default | Notes |
+|----------|--------|---------|-------|
+| `PARAKEET_BACKEND` | `auto`, `mlx`, `onnx` | `auto` | `auto` chooses MLX on Apple Silicon and ONNX elsewhere |
+| `PARAKEET_MLX_MODEL` | Hugging Face repo | `mlx-community/parakeet-tdt-0.6b-v3` | Used by the MLX backend |
+| `PARAKEET_ONNX_MODEL` | Hugging Face repo | `nemo-parakeet-tdt-0.6b-v3` | Used by the ONNX backend |
+| `PARAKEET_LISTEN` | space/comma separated `host:port` values | unset | Bind exact interfaces, e.g. localhost plus Tailscale |
+| `PARAKEET_MAX_ACTIVE_TRANSCRIPTIONS` | integer | `1` for MLX | Reject extra simultaneous transcriptions with HTTP 429 |
+| `PARAKEET_MLX_MEMORY_LIMIT` | byte size, e.g. `24GB` | unset | MLX graph evaluation memory guideline |
+| `PARAKEET_MLX_CACHE_LIMIT` | byte size, e.g. `1GB` | unset | MLX free-buffer cache cap; cache is also cleared after each chunk |
+| `PARAKEET_MAX_RSS` | byte size, e.g. `32GB` | unset | Process RSS watchdog; exits for launchd restart when exceeded |
+| `PARAKEET_MAX_UPLOAD_MB` | number | `2000` | Flask request upload cap in MiB |
 
-Models are lazy-loaded on first use and cached for subsequent requests. The default INT8 model is pre-loaded at startup.
-
-**To select a model via API:**
-```python
-transcript = client.audio.transcriptions.create(
-  model="grikdotnet/parakeet-tdt-0.6b-fp16",  # Select FP16 model
-  file=audio_file,
-  response_format="text"
-)
-```
+The selected model is pre-loaded at startup and cached for subsequent requests.
 
 ### Web Interface
 
 The server includes a built-in web interface for testing and easy drag-and-drop transcription.
 Access it at: **[http://127.0.0.1:5092](http://127.0.0.1:5092)**
-
-The web interface includes a dropdown menu to select between INT8, FP16, and FP32 model variants.
 
 ## 🔌 Open WebUI Integration
 

@@ -1,0 +1,7 @@
+flask>=3.0.0
+openai>=1.0.0
+parakeet-mlx>=0.5.1
+psutil>=5.0.0
+requests>=2.0.0
+typing_extensions>=4.0.0
+waitress>=3.0.0
