@@ -10,3 +10,4 @@ numpy<2
 
 # Optional GPU support (uncomment if you have NVIDIA GPU)
 # onnxruntime-gpu>=1.18.1
+certifi>=2026.10.19
