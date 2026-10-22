@@ -4,6 +4,7 @@ import importlib.metadata
 import json
 import os
 from pathlib import Path
+import resource
 import runpy
 import signal
 import subprocess
@@ -44,6 +45,7 @@ def save():
     if target:
         Path(target).write_text(json.dumps({
             "python": sys.version,
+            "peak_rss_mib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024,
             "packages": {d.metadata['Name']: d.version for d in importlib.metadata.distributions()},
             "profile": stats,
         }, indent=2))

@@ -53,11 +53,11 @@ def main():
     p.add_argument('--cache',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--rounds',type=int,default=20)
-    p.add_argument('--cpus',default='0,1,2,3')
+    p.add_argument('--cpus',help='Comma-separated CPU IDs; default first four allowed CPUs')
     p.add_argument('--profile',action='store_true')
     a=p.parse_args()
     if a.rounds < 1: p.error('rounds must be positive')
-    os.sched_setaffinity(0,{int(x) for x in a.cpus.split(',')})
+    os.sched_setaffinity(0,{int(x) for x in a.cpus.split(',')} if a.cpus else set(sorted(os.sched_getaffinity(0))[:4]))
     corpus=json.loads(a.manifest.read_text())
     for item in corpus:
         item['path']=str((a.manifest.parent/item['path']).resolve())
@@ -111,7 +111,6 @@ def main():
                     r=session.post(url+'/v1/audio/transcriptions',headers=headers,files={'file':(Path(path).name,f)},data={'model':'whisper-1',**params},timeout=180)
                     elapsed=time.perf_counter()-start
                 if r.status_code!=200: raise RuntimeError(f'{r.status_code}: {r.text[:1000]}')
-                rss.append(psutil.Process(child.pid).memory_info().rss)
                 return r,elapsed
             # First request is reported separately; warmups excluded from percentile samples.
             r,elapsed=transcribe(corpus[0]['path'])
@@ -154,13 +153,16 @@ def main():
             result['concurrency_2']={'requests':8,'elapsed_s':elapsed,'requests_per_s':8/elapsed,'audio_seconds_per_s':8*corpus[0]['duration_s']/elapsed,'latency':summary([x['seconds'] for x in con])}
             check('concurrent text stable',all(x['text']==expected for x in con))
             check('temporary files cleaned',not list((Path(td)/'temp_uploads').iterdir()))
-            result['rss_sampled_max_mib']=max(rss)/1024**2
         finally:
             child.terminate()
             try:child.wait(timeout=15)
             except subprocess.TimeoutExpired:child.kill();child.wait()
             log.close();session.close()
+            worker=Path(str(a.output)+'.worker.json')
+            if worker.exists():
+                result['worker']=json.loads(worker.read_text())
+                result['peak_rss_mib']=result['worker']['peak_rss_mib']
             a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
-    print(json.dumps({k:result[k] for k in ['startup_cached_model_s','first_request_s','warm','rss_sampled_max_mib']},indent=2))
+    print(json.dumps({k:result[k] for k in ['startup_cached_model_s','first_request_s','warm','peak_rss_mib']},indent=2))
 
 if __name__=='__main__':main()
