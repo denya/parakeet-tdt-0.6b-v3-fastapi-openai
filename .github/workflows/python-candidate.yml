@@ -1,0 +1,23 @@
+name: CPU Python candidate
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - requirements-cpu.lock
+      - scripts/python-upgrade/**
+      - .github/workflows/python-candidate.yml
+permissions:
+  contents: read
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated candidate (never deploy)
+        run: docker build --pull -t parakeet-python-candidate .
+      - name: Verify binary runtime, dependencies, ffmpeg and TLS
+        run: |
+          docker run --rm --entrypoint python parakeet-python-candidate -c 'import sys, ssl, urllib.request, numpy, onnxruntime, onnx_asr, flask, waitress; assert sys.version_info[:3] == (3,14,9); assert numpy.__version__ == "2.5.4"; assert onnxruntime.__version__ == "1.31.0"; print(sys.version, ssl.OPENSSL_VERSION); urllib.request.urlopen("https://pypi.org", timeout=20)'
+          docker run --rm --entrypoint python parakeet-python-candidate -m pip check
+          docker run --rm --entrypoint ffmpeg parakeet-python-candidate -version
