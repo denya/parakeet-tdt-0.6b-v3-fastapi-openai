@@ -24,7 +24,7 @@ jobs:
           docker run --rm --entrypoint python parakeet-python-candidate -c 'import sys, ssl, urllib.request, numpy, onnxruntime, onnx_asr, flask, waitress; assert sys.version_info[:3] == (3,14,9); assert numpy.__version__ == "2.5.4"; assert onnxruntime.__version__ == "1.31.0"; print(sys.version, ssl.OPENSSL_VERSION); urllib.request.urlopen("https://pypi.org", timeout=20)'
           docker run --rm --entrypoint python parakeet-python-candidate -m pip check
           docker run --rm --entrypoint ffmpeg parakeet-python-candidate -version
-          docker run --rm --entrypoint python -v "$PWD:/src:ro" parakeet-python-candidate /src/scripts/python-upgrade/check_tls.py
+          docker run --rm --entrypoint python -v "$PWD:/src:ro" parakeet-python-candidate /src/scripts/python-upgrade/check_tls.py --public
       - name: Real multilingual ASR regression in built image
         run: |
           mkdir -p /tmp/parakeet-ci-models /tmp/parakeet-ci-results
