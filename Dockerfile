@@ -25,7 +25,7 @@ COPY requirements-cpu.lock .
 
 # Install Python dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir --cert /etc/ssl/certs/ca-certificates.crt --upgrade "pip>=26.2.2" && \
+RUN pip install --no-cache-dir --cert /etc/ssl/certs/ca-certificates.crt --upgrade "pip==26.2.2" && \
     pip install --no-cache-dir --only-binary=:all: --require-hashes -r requirements-cpu.lock
 RUN pip check
 

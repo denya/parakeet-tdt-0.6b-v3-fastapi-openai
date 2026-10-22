@@ -1,6 +1,6 @@
 """Local-only real HTTP/API regression and latency runner; no production endpoint.
 
-Run with the interpreter whose dependencies you want to test. Requires requests/psutil.
+Run with the interpreter whose dependencies you want to test. Requires requests and the OpenAI SDK.
 Corpus manifest: [{id, path, text, source, license}]. Relative paths resolve at manifest.
 """
 import argparse
@@ -20,7 +20,6 @@ import tempfile
 import time
 import unicodedata
 
-import psutil
 import requests
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -61,7 +60,8 @@ def main():
     corpus=json.loads(a.manifest.read_text())
     for item in corpus:
         item['path']=str((a.manifest.parent/item['path']).resolve())
-        item['sha256']=hashlib.sha256(Path(item['path']).read_bytes()).hexdigest()
+        digest=hashlib.sha256(Path(item['path']).read_bytes()).hexdigest()
+        if item.get('sha256') != digest: raise ValueError('Fixture hash mismatch: '+item['id'])
         item['duration_s']=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',item['path']],text=True))
     a.output=a.output.resolve();a.output.parent.mkdir(parents=True,exist_ok=True)
     result={'python':sys.version,'platform':platform.platform(),'cpu':platform.processor(),
@@ -76,6 +76,7 @@ def main():
         url=f'http://127.0.0.1:{port}'
         env=os.environ.copy()
         env.update(API_KEY=KEY,HOST='127.0.0.1',PORT=str(port),PARAKEET_BACKEND='onnx',
+                   PARAKEET_ONNX_MODEL='nemo-parakeet-tdt-0.6b-v3',
                    PARAKEET_OPEN_BROWSER='0',PARAKEET_LISTEN='',PARAKEET_MODEL_CACHE=str(a.cache.resolve()),
                    HF_HUB_OFFLINE='1',HF_HUB_DISABLE_XET='1',ONNX_INTRA_OP_THREADS='4',
                    ONNX_INTER_OP_THREADS='1',WAITRESS_THREADS='4',PARAKEET_MAX_ACTIVE_TRANSCRIPTIONS='2',
@@ -85,7 +86,6 @@ def main():
         start=time.perf_counter()
         child=subprocess.Popen([sys.executable,str(Path(__file__).with_name('worker.py')),str(ROOT/'app.py')],cwd=td,env=env,stdout=log,stderr=subprocess.STDOUT)
         session=requests.Session();session.trust_env=False
-        rss=[]
         try:
             while True:
                 if child.poll() is not None: raise RuntimeError('Service exited: '+Path(log.name).read_text()[-3000:])
@@ -127,6 +127,11 @@ def main():
             # API/codec correctness after latency runs.
             source=corpus[0]['path']
             expected=next(x['text'] for x in result['samples'] if x['id']==corpus[0]['id'])
+            from openai import OpenAI, DefaultHttpxClient
+            with OpenAI(api_key=KEY,base_url=url+'/v1',http_client=DefaultHttpxClient(trust_env=False)) as client:
+                with open(source,'rb') as audio:
+                    sdk_result=client.audio.transcriptions.create(model='whisper-1',file=audio)
+                check('OpenAI SDK',sdk_result.text==expected)
             for fmt in ['json','text','verbose_json','srt','vtt']:
                 r,_=transcribe(source,response_format=fmt,language='en',temperature='0',prompt='John Kennedy',**{'timestamp_granularities[]':'word'})
                 if fmt in ['json','verbose_json']:check('format '+fmt,r.json()['text']==expected)

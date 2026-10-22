@@ -1,0 +1,384 @@
+{
+  "python": "3.14.9 (main, Oct 21 2026, 17:48:02) [Clang 23.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cpu": "x86_64",
+  "affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "rounds": 2,
+  "profile_enabled": true,
+  "ort_threads": [
+    4,
+    1
+  ],
+  "waitress_threads": 4,
+  "max_active": 2,
+  "model": "nemo-parakeet-tdt-0.6b-v3",
+  "quantization": "int8",
+  "providers": [
+    "CPUExecutionProvider"
+  ],
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "corpus": [
+    {
+      "id": "en-jfk",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/en-jfk.flac",
+      "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country",
+      "source": "https://github.com/ggml-org/whisper.cpp/blob/master/samples/jfk.wav",
+      "license": "US federal government speech; public domain",
+      "sha256": "448d17921a7f352519d3d73194fa72bfaf58189ba1749e9caf5c987b3cc11557",
+      "duration_s": 11.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/ru-fleurs-0.flac",
+      "text": "в древнем китае использовали уникальный способ обозначения периодов времени каждый этап китая или каждая семья находившаяся у власти были особой династией",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1819,
+      "sha256": "47b9def9a5b640257aebd154770ee8a14177931c8ced396c94575c2a4ae1d03b",
+      "duration_s": 16.92
+    },
+    {
+      "id": "es-fleurs-0",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/es-fleurs-0.flac",
+      "text": "se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo de clima extremo en el área que visitan dado que ello puede afectar sus planes de viaje",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 2001,
+      "sha256": "bd59c305d89265bcfa10b6d35a202144dc1bf4c1c2fa8300a6d051fcee25f0f2",
+      "duration_s": 12.84
+    },
+    {
+      "id": "ru-fleurs-5",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/ru-fleurs-5.flac",
+      "text": "в 1990 году он был добавлен в список всемирного наследия находящегося под угрозой из-за опасности со стороны песков пустыни",
+      "raw_text": "В 1990 году он был добавлен в список всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыни.",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1704,
+      "row_index": 5,
+      "sha256": "7da75161318c5f7742c53e6107e151eb8691f7d0dcbfa8654ef92bac7f9517cb",
+      "duration_s": 10.44
+    },
+    {
+      "id": "es-fleurs-1",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/es-fleurs-1.flac",
+      "text": "el uso adecuado de los blogs «puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de internet pueden definir sus posturas en el contexto de los escritos de otros además de establecer sus perspectivas sobre temas específicos» oravec 2002",
+      "raw_text": "El uso adecuado de los blogs «puede empoderar a los alumnos para que sean más analíticos y críticos, a través de la respuesta activa a los contenidos de internet, pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos» (Oravec, 2002).",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1852,
+      "row_index": 1,
+      "sha256": "90ffc8d8ec61601fc78c399e3db6d23f6d71132f51461292c355dc89a2ddb236",
+      "duration_s": 21.36
+    }
+  ],
+  "checks": [
+    {
+      "name": "missing auth",
+      "ok": true
+    },
+    {
+      "name": "wrong auth",
+      "ok": true
+    },
+    {
+      "name": "missing file",
+      "ok": true
+    },
+    {
+      "name": "openapi",
+      "ok": true
+    },
+    {
+      "name": "format json",
+      "ok": true
+    },
+    {
+      "name": "format text",
+      "ok": true
+    },
+    {
+      "name": "format verbose_json",
+      "ok": true
+    },
+    {
+      "name": "format srt",
+      "ok": true
+    },
+    {
+      "name": "format vtt",
+      "ok": true
+    },
+    {
+      "name": "codec flac",
+      "ok": true
+    },
+    {
+      "name": "codec mp3",
+      "ok": true
+    },
+    {
+      "name": "codec m4a",
+      "ok": true
+    },
+    {
+      "name": "codec ogg",
+      "ok": true
+    },
+    {
+      "name": "codec webm",
+      "ok": true
+    },
+    {
+      "name": "codec wav",
+      "ok": true
+    },
+    {
+      "name": "invalid audio rejected",
+      "ok": true
+    },
+    {
+      "name": "long chunked audio",
+      "ok": true
+    },
+    {
+      "name": "concurrent text stable",
+      "ok": true
+    },
+    {
+      "name": "temporary files cleaned",
+      "ok": true
+    }
+  ],
+  "samples": [
+    {
+      "id": "en-jfk",
+      "iteration": 0,
+      "seconds": 0.91653770099947,
+      "rtf": 0.08332160918176999,
+      "text": "And so my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 0,
+      "seconds": 1.2528880099998787,
+      "rtf": 0.0740477547281252,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 0,
+      "seconds": 1.0405004370040842,
+      "rtf": 0.08103585957975734,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 0,
+      "seconds": 0.9279983250016812,
+      "rtf": 0.0888887284484369,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыни.",
+      "wer": 0.05263157894736842,
+      "cer": 0.01639344262295082
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 0,
+      "seconds": 1.8512460089987144,
+      "rtf": 0.08666882064600723,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 1,
+      "seconds": 0.7818057799959206,
+      "rtf": 0.07107325272690188,
+      "text": "And so my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 1,
+      "seconds": 1.3506871270001284,
+      "rtf": 0.07982784438535037,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 1,
+      "seconds": 1.1237637359954533,
+      "rtf": 0.08752054018656179,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 1,
+      "seconds": 0.8371897350007202,
+      "rtf": 0.08019058764374716,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыни.",
+      "wer": 0.05263157894736842,
+      "cer": 0.01639344262295082
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 1,
+      "seconds": 1.5849157119955635,
+      "rtf": 0.07420017378256384,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    }
+  ],
+  "startup_cached_model_s": 2.956188361000386,
+  "health": {
+    "backend": "onnx",
+    "default_model": "parakeet-tdt-0.6b-v3",
+    "mlx_model": null,
+    "models": [
+      "parakeet-tdt-0.6b-v3"
+    ],
+    "onnx_model": "nemo-parakeet-tdt-0.6b-v3",
+    "status": "healthy"
+  },
+  "first_request_s": 0.9872656340012327,
+  "first_text": "And so my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+  "warm": {
+    "n": 10,
+    "p50_s": 1.0821320864997688,
+    "p95_s": 1.8512460089987144
+  },
+  "by_audio": {
+    "en-jfk": {
+      "n": 2,
+      "p50_s": 0.8491717404976953,
+      "p95_s": 0.91653770099947
+    },
+    "ru-fleurs-0": {
+      "n": 2,
+      "p50_s": 1.3017875685000035,
+      "p95_s": 1.3506871270001284
+    },
+    "es-fleurs-0": {
+      "n": 2,
+      "p50_s": 1.0821320864997688,
+      "p95_s": 1.1237637359954533
+    },
+    "ru-fleurs-5": {
+      "n": 2,
+      "p50_s": 0.8825940300012007,
+      "p95_s": 0.9279983250016812
+    },
+    "es-fleurs-1": {
+      "n": 2,
+      "p50_s": 1.718080860497139,
+      "p95_s": 1.8512460089987144
+    }
+  },
+  "codec_texts": {
+    "flac": "And so my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "mp3": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+    "m4a": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "ogg": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "webm": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "wav": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country."
+  },
+  "concurrency_2": {
+    "requests": 8,
+    "elapsed_s": 5.920407324003463,
+    "requests_per_s": 1.3512583783830412,
+    "audio_seconds_per_s": 14.863842162213453,
+    "latency": {
+      "n": 8,
+      "p50_s": 1.3816581815044628,
+      "p95_s": 1.6860625310000614
+    }
+  },
+  "worker": {
+    "python": "3.14.9 (main, Oct 21 2026, 17:48:02) [Clang 23.1.3 ]",
+    "peak_rss_mib": 2203.29296875,
+    "packages": {
+      "urllib3": "2.8.0",
+      "numpy": "2.5.4",
+      "h11": "0.16.0",
+      "annotated-types": "0.8.0",
+      "certifi": "2026.10.19",
+      "requests": "2.34.2",
+      "openai": "3.36.1",
+      "pydantic": "2.14.1",
+      "Werkzeug": "3.1.9",
+      "filelock": "4.2.4",
+      "protobuf": "7.36.2",
+      "hf-xet": "1.7.0",
+      "anyio": "4.15.1",
+      "httpx2": "2.16.0",
+      "pydantic_core": "2.50.1",
+      "Flask": "3.1.3",
+      "PyYAML": "6.0.3",
+      "onnxruntime": "1.31.0",
+      "MarkupSafe": "3.0.4",
+      "click": "8.5.0",
+      "pip": "26.2.2",
+      "itsdangerous": "2.2.0",
+      "fsspec": "2026.9.0",
+      "tqdm": "4.70.1",
+      "waitress": "3.0.2",
+      "typing_extensions": "4.16.0",
+      "onnx-asr": "0.12.0",
+      "flatbuffers": "25.12.19",
+      "typing-inspection": "0.4.4",
+      "jiter": "0.17.0",
+      "packaging": "26.3",
+      "httpcore2": "2.16.0",
+      "charset-normalizer": "3.5.2",
+      "huggingface_hub": "2.2.0",
+      "socksio": "1.0.0",
+      "blinker": "1.9.0",
+      "truststore": "0.10.5",
+      "Jinja2": "3.1.6",
+      "sniffio": "1.3.1",
+      "idna": "3.20",
+      "psutil": "7.2.2"
+    },
+    "profile": {
+      "ffmpeg": {
+        "seconds": 3.146455010995851,
+        "calls": 40
+      },
+      "ffprobe": {
+        "seconds": 2.0574410829794942,
+        "calls": 36
+      },
+      "onnx:encoder-model.int8.onnx": {
+        "seconds": 39.30791314802627,
+        "calls": 37
+      },
+      "onnx:decoder_joint-model.int8.onnx": {
+        "seconds": 2.0382522598229116,
+        "calls": 2515
+      },
+      "recognize_total": {
+        "seconds": 42.081638151015795,
+        "calls": 37
+      }
+    }
+  },
+  "peak_rss_mib": 2203.29296875
+}

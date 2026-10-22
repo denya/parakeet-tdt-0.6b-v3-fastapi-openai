@@ -1,0 +1,1179 @@
+{
+  "python": "3.10.22 (main, Oct  3 2026, 01:32:06) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cpu": "x86_64",
+  "affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "rounds": 20,
+  "profile_enabled": false,
+  "ort_threads": [
+    4,
+    1
+  ],
+  "waitress_threads": 4,
+  "max_active": 2,
+  "model": "nemo-parakeet-tdt-0.6b-v3",
+  "quantization": "int8",
+  "providers": [
+    "CPUExecutionProvider"
+  ],
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "corpus": [
+    {
+      "id": "en-jfk",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/en-jfk.flac",
+      "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country",
+      "source": "https://github.com/ggml-org/whisper.cpp/blob/master/samples/jfk.wav",
+      "license": "US federal government speech; public domain",
+      "sha256": "448d17921a7f352519d3d73194fa72bfaf58189ba1749e9caf5c987b3cc11557",
+      "duration_s": 11.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/ru-fleurs-0.flac",
+      "text": "в древнем китае использовали уникальный способ обозначения периодов времени каждый этап китая или каждая семья находившаяся у власти были особой династией",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1819,
+      "sha256": "47b9def9a5b640257aebd154770ee8a14177931c8ced396c94575c2a4ae1d03b",
+      "duration_s": 16.92
+    },
+    {
+      "id": "es-fleurs-0",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/es-fleurs-0.flac",
+      "text": "se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo de clima extremo en el área que visitan dado que ello puede afectar sus planes de viaje",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 2001,
+      "sha256": "bd59c305d89265bcfa10b6d35a202144dc1bf4c1c2fa8300a6d051fcee25f0f2",
+      "duration_s": 12.84
+    },
+    {
+      "id": "ru-fleurs-5",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/ru-fleurs-5.flac",
+      "text": "в 1990 году он был добавлен в список всемирного наследия находящегося под угрозой из-за опасности со стороны песков пустыни",
+      "raw_text": "В 1990 году он был добавлен в список всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыни.",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1704,
+      "row_index": 5,
+      "sha256": "7da75161318c5f7742c53e6107e151eb8691f7d0dcbfa8654ef92bac7f9517cb",
+      "duration_s": 10.44
+    },
+    {
+      "id": "es-fleurs-1",
+      "path": "/workspace/scratch/88d51d59fab6/parakeet/tests/fixtures/python-upgrade/es-fleurs-1.flac",
+      "text": "el uso adecuado de los blogs «puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de internet pueden definir sus posturas en el contexto de los escritos de otros además de establecer sus perspectivas sobre temas específicos» oravec 2002",
+      "raw_text": "El uso adecuado de los blogs «puede empoderar a los alumnos para que sean más analíticos y críticos, a través de la respuesta activa a los contenidos de internet, pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos» (Oravec, 2002).",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1852,
+      "row_index": 1,
+      "sha256": "90ffc8d8ec61601fc78c399e3db6d23f6d71132f51461292c355dc89a2ddb236",
+      "duration_s": 21.36
+    }
+  ],
+  "checks": [
+    {
+      "name": "missing auth",
+      "ok": true
+    },
+    {
+      "name": "wrong auth",
+      "ok": true
+    },
+    {
+      "name": "missing file",
+      "ok": true
+    },
+    {
+      "name": "openapi",
+      "ok": true
+    },
+    {
+      "name": "format json",
+      "ok": true
+    },
+    {
+      "name": "format text",
+      "ok": true
+    },
+    {
+      "name": "format verbose_json",
+      "ok": true
+    },
+    {
+      "name": "format srt",
+      "ok": true
+    },
+    {
+      "name": "format vtt",
+      "ok": true
+    },
+    {
+      "name": "codec flac",
+      "ok": true
+    },
+    {
+      "name": "codec mp3",
+      "ok": true
+    },
+    {
+      "name": "codec m4a",
+      "ok": true
+    },
+    {
+      "name": "codec ogg",
+      "ok": true
+    },
+    {
+      "name": "codec webm",
+      "ok": true
+    },
+    {
+      "name": "codec wav",
+      "ok": true
+    },
+    {
+      "name": "invalid audio rejected",
+      "ok": true
+    },
+    {
+      "name": "long chunked audio",
+      "ok": true
+    },
+    {
+      "name": "concurrent text stable",
+      "ok": true
+    },
+    {
+      "name": "temporary files cleaned",
+      "ok": true
+    }
+  ],
+  "samples": [
+    {
+      "id": "en-jfk",
+      "iteration": 0,
+      "seconds": 0.7062074869973003,
+      "rtf": 0.06420068063611821,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 0,
+      "seconds": 1.0235060259947204,
+      "rtf": 0.06049089988148465,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 0,
+      "seconds": 0.8303553350051516,
+      "rtf": 0.06466941861410838,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 0,
+      "seconds": 0.710102712000662,
+      "rtf": 0.0680175011494887,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 0,
+      "seconds": 1.2708126599973184,
+      "rtf": 0.05949497471897558,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 1,
+      "seconds": 0.721374344000651,
+      "rtf": 0.06557948581824101,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 1,
+      "seconds": 1.0328670450035133,
+      "rtf": 0.06104415159595232,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 1,
+      "seconds": 0.7542928170005325,
+      "rtf": 0.058745546495368575,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 1,
+      "seconds": 0.6097504969948204,
+      "rtf": 0.05840522001866096,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 1,
+      "seconds": 1.1708205489994725,
+      "rtf": 0.054813696114207514,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 2,
+      "seconds": 0.602625485000317,
+      "rtf": 0.054784135000028815,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 2,
+      "seconds": 0.8968114009985584,
+      "rtf": 0.05300303788407555,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 2,
+      "seconds": 0.7382418810011586,
+      "rtf": 0.057495473598221075,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 2,
+      "seconds": 0.6935254920026637,
+      "rtf": 0.06642964482784135,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 2,
+      "seconds": 1.2416412899983698,
+      "rtf": 0.05812927387632817,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 3,
+      "seconds": 0.609237201999349,
+      "rtf": 0.055385200181759006,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 3,
+      "seconds": 1.0636847140049213,
+      "rtf": 0.06286552683244215,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 3,
+      "seconds": 0.8296797199946013,
+      "rtf": 0.0646168006226325,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 3,
+      "seconds": 0.713258418996702,
+      "rtf": 0.06831977193455,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 3,
+      "seconds": 1.3398345790046733,
+      "rtf": 0.06272633796838359,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 4,
+      "seconds": 0.6866820540017216,
+      "rtf": 0.062425641272883775,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 4,
+      "seconds": 1.0590209309957572,
+      "rtf": 0.06258988953875633,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 4,
+      "seconds": 0.8643442279935698,
+      "rtf": 0.06731652865993534,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 4,
+      "seconds": 0.669998048004345,
+      "rtf": 0.06417605823796409,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 4,
+      "seconds": 1.318205928997486,
+      "rtf": 0.06171376072085608,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 5,
+      "seconds": 0.6758676059980644,
+      "rtf": 0.06144250963618767,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 5,
+      "seconds": 0.9687824030042975,
+      "rtf": 0.057256643203563676,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 5,
+      "seconds": 0.7866888779972214,
+      "rtf": 0.061268604205391076,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 5,
+      "seconds": 0.6528989700018428,
+      "rtf": 0.0625382155174179,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 5,
+      "seconds": 1.2333246799971676,
+      "rtf": 0.05773991947552283,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 6,
+      "seconds": 0.7506712519971188,
+      "rtf": 0.06824284109064717,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 6,
+      "seconds": 0.9617127530000289,
+      "rtf": 0.056838815189127,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 6,
+      "seconds": 0.796017505999771,
+      "rtf": 0.06199513286602577,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 6,
+      "seconds": 0.686415942000167,
+      "rtf": 0.06574865344829187,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 6,
+      "seconds": 1.3164613870030735,
+      "rtf": 0.06163208740651093,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 7,
+      "seconds": 0.686466744999052,
+      "rtf": 0.06240606772718655,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 7,
+      "seconds": 1.266490559995873,
+      "rtf": 0.07485168794301848,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 7,
+      "seconds": 0.9463943959999597,
+      "rtf": 0.073706728660433,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 7,
+      "seconds": 0.7798694230004912,
+      "rtf": 0.07470013630272905,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 7,
+      "seconds": 1.4166363120020833,
+      "rtf": 0.06632192471919866,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 8,
+      "seconds": 0.6106659669967485,
+      "rtf": 0.055515087908795314,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 8,
+      "seconds": 1.0393069320052746,
+      "rtf": 0.061424759574779816,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 8,
+      "seconds": 0.7151593470043736,
+      "rtf": 0.055697768458284544,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 8,
+      "seconds": 0.6806733849953162,
+      "rtf": 0.0651986000953368,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 8,
+      "seconds": 1.3082184860031703,
+      "rtf": 0.06124618380164655,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 9,
+      "seconds": 0.7238841390062589,
+      "rtf": 0.065807649000569,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 9,
+      "seconds": 1.0467323100019712,
+      "rtf": 0.06186361170224416,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 9,
+      "seconds": 0.8106685079983436,
+      "rtf": 0.06313617663538501,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 9,
+      "seconds": 0.6487155650029308,
+      "rtf": 0.06213750622633437,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 9,
+      "seconds": 1.2097206869948423,
+      "rtf": 0.05663486362335404,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 10,
+      "seconds": 0.6301591670053313,
+      "rtf": 0.05728719700048466,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 10,
+      "seconds": 0.9231633660019725,
+      "rtf": 0.05456048262423004,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 10,
+      "seconds": 0.9446278120012721,
+      "rtf": 0.0735691442368592,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 10,
+      "seconds": 0.7715055120061152,
+      "rtf": 0.0738989954028846,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 10,
+      "seconds": 1.472623461006151,
+      "rtf": 0.06894304592725427,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 11,
+      "seconds": 0.8152201850025449,
+      "rtf": 0.07411092590932226,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 11,
+      "seconds": 1.1548947039991617,
+      "rtf": 0.06825618817961948,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 11,
+      "seconds": 0.89496991699707,
+      "rtf": 0.06970170693123598,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 11,
+      "seconds": 0.7507167209987529,
+      "rtf": 0.07190773189643226,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 11,
+      "seconds": 1.386349579996022,
+      "rtf": 0.06490400655412087,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 12,
+      "seconds": 0.8014102329980233,
+      "rtf": 0.07285547572709303,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 12,
+      "seconds": 1.045447955999407,
+      "rtf": 0.06178770425528409,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 12,
+      "seconds": 0.8964887160036596,
+      "rtf": 0.06981999345822895,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 12,
+      "seconds": 0.6941643820027821,
+      "rtf": 0.06649084118800595,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 12,
+      "seconds": 1.3062343790006707,
+      "rtf": 0.06115329489703515,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 13,
+      "seconds": 0.6969657429945073,
+      "rtf": 0.06336052209040975,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 13,
+      "seconds": 1.057863609996275,
+      "rtf": 0.06252148995249852,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 13,
+      "seconds": 0.8518513750022976,
+      "rtf": 0.06634356503133158,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 13,
+      "seconds": 0.7149619460033136,
+      "rtf": 0.0684829450194745,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 13,
+      "seconds": 1.3964829109972925,
+      "rtf": 0.06537841343620283,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 14,
+      "seconds": 0.7450306770042516,
+      "rtf": 0.06773006154584106,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 14,
+      "seconds": 1.1237839440000243,
+      "rtf": 0.06641749078014328,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 14,
+      "seconds": 0.7472747300053015,
+      "rtf": 0.05819896651131632,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 14,
+      "seconds": 0.7331792190016131,
+      "rtf": 0.0702278945403844,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 14,
+      "seconds": 1.3766092930018203,
+      "rtf": 0.06444800060869946,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 15,
+      "seconds": 0.6672960470023099,
+      "rtf": 0.06066327700020999,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 15,
+      "seconds": 1.0091609800001606,
+      "rtf": 0.059643083924359366,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 15,
+      "seconds": 0.7955629819989554,
+      "rtf": 0.0619597338005417,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 15,
+      "seconds": 0.7221268299981602,
+      "rtf": 0.0691692365898621,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 15,
+      "seconds": 1.2268316469999263,
+      "rtf": 0.057435938529959096,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 16,
+      "seconds": 0.6694173790019704,
+      "rtf": 0.06085612536381549,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 16,
+      "seconds": 0.9550955099985003,
+      "rtf": 0.05644772517721633,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 16,
+      "seconds": 0.8388027709952439,
+      "rtf": 0.06532731861333675,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 16,
+      "seconds": 0.6306727480041445,
+      "rtf": 0.06040926705020542,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 16,
+      "seconds": 1.2154486069994164,
+      "rtf": 0.05690302467225732,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 17,
+      "seconds": 0.6298732220020611,
+      "rtf": 0.05726120200018737,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 17,
+      "seconds": 0.9247384890040848,
+      "rtf": 0.054653575000241414,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 17,
+      "seconds": 0.8691176149950479,
+      "rtf": 0.0676882877722,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 17,
+      "seconds": 0.620669806994556,
+      "rtf": 0.05945113093817586,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 17,
+      "seconds": 1.2807773759996053,
+      "rtf": 0.05996148764043096,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 18,
+      "seconds": 0.6713830860026064,
+      "rtf": 0.06103482600023695,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 18,
+      "seconds": 1.0276770769996801,
+      "rtf": 0.06073741589832624,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 18,
+      "seconds": 0.759651266002038,
+      "rtf": 0.05916287118395935,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 18,
+      "seconds": 0.692027703000349,
+      "rtf": 0.0662861784483093,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 18,
+      "seconds": 1.3488602790021105,
+      "rtf": 0.06314888946639094,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 19,
+      "seconds": 0.7212736890069209,
+      "rtf": 0.06557033536426554,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 19,
+      "seconds": 1.0165420240009553,
+      "rtf": 0.06007931583929995,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый тап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.047619047619047616,
+      "cer": 0.006493506493506494
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 19,
+      "seconds": 0.7871752349965391,
+      "rtf": 0.06130648247636597,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "ru-fleurs-5",
+      "iteration": 19,
+      "seconds": 0.6611084589967504,
+      "rtf": 0.06332456503800292,
+      "text": "В 1990 году он был добавлен в списку всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыне.",
+      "wer": 0.10526315789473684,
+      "cer": 0.02459016393442623
+    },
+    {
+      "id": "es-fleurs-1",
+      "iteration": 19,
+      "seconds": 1.3045534010016127,
+      "rtf": 0.06107459742516913,
+      "text": "El uso adecuado de los blogs puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de Internet. Pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos.",
+      "wer": 0.0392156862745098,
+      "cer": 0.03986710963455149
+    }
+  ],
+  "startup_cached_model_s": 1.827492322998296,
+  "health": {
+    "backend": "onnx",
+    "default_model": "parakeet-tdt-0.6b-v3",
+    "mlx_model": null,
+    "models": [
+      "parakeet-tdt-0.6b-v3"
+    ],
+    "onnx_model": "nemo-parakeet-tdt-0.6b-v3",
+    "status": "healthy"
+  },
+  "first_request_s": 0.7638284989952808,
+  "first_text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+  "warm": {
+    "n": 100,
+    "p50_s": 0.8224499524985731,
+    "p95_s": 1.3488602790021105
+  },
+  "by_audio": {
+    "en-jfk": {
+      "n": 20,
+      "p50_s": 0.6865743995003868,
+      "p95_s": 0.8014102329980233
+    },
+    "ru-fleurs-0": {
+      "n": 20,
+      "p50_s": 1.0302720610015967,
+      "p95_s": 1.1548947039991617
+    },
+    "es-fleurs-0": {
+      "n": 20,
+      "p50_s": 0.8201741139964724,
+      "p95_s": 0.9446278120012721
+    },
+    "ru-fleurs-5": {
+      "n": 20,
+      "p50_s": 0.6927765975015063,
+      "p95_s": 0.7715055120061152
+    },
+    "es-fleurs-1": {
+      "n": 20,
+      "p50_s": 1.3072264325019205,
+      "p95_s": 1.4166363120020833
+    }
+  },
+  "codec_texts": {
+    "flac": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "mp3": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+    "m4a": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "ogg": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "webm": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "wav": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country."
+  },
+  "concurrency_2": {
+    "requests": 8,
+    "elapsed_s": 5.328040691005299,
+    "requests_per_s": 1.501490034320769,
+    "audio_seconds_per_s": 16.51639037752846,
+    "latency": {
+      "n": 8,
+      "p50_s": 1.3514411884971196,
+      "p95_s": 1.5245978140010266
+    }
+  },
+  "worker": {
+    "python": "3.10.22 (main, Oct  3 2026, 01:32:06) [Clang 22.1.3 ]",
+    "peak_rss_mib": 2076.671875,
+    "packages": {
+      "exceptiongroup": "1.3.1",
+      "urllib3": "2.8.0",
+      "h11": "0.16.0",
+      "annotated-types": "0.8.0",
+      "certifi": "2026.10.19",
+      "requests": "2.34.2",
+      "openai": "3.36.1",
+      "pydantic": "2.14.1",
+      "Werkzeug": "3.1.9",
+      "protobuf": "7.36.2",
+      "hf-xet": "1.7.0",
+      "anyio": "4.15.1",
+      "pydantic_core": "2.50.1",
+      "numpy": "1.26.4",
+      "Flask": "3.1.3",
+      "humanfriendly": "10.0",
+      "httpx2": "2.14.0",
+      "PyYAML": "6.0.3",
+      "onnxruntime": "1.23.2",
+      "MarkupSafe": "3.0.4",
+      "sympy": "1.14.0",
+      "click": "8.5.0",
+      "pip": "26.2.2",
+      "coloredlogs": "15.0.1",
+      "filelock": "4.1.0",
+      "itsdangerous": "2.2.0",
+      "fsspec": "2026.9.0",
+      "tqdm": "4.70.1",
+      "waitress": "3.0.2",
+      "typing_extensions": "4.16.0",
+      "tomli": "2.5.0",
+      "onnx-asr": "0.12.0",
+      "flatbuffers": "25.12.19",
+      "mpmath": "1.3.0",
+      "typing-inspection": "0.4.4",
+      "jiter": "0.17.0",
+      "httpcore2": "2.14.0",
+      "packaging": "26.3",
+      "charset-normalizer": "3.5.2",
+      "huggingface_hub": "2.2.0",
+      "socksio": "1.0.0",
+      "blinker": "1.9.0",
+      "truststore": "0.10.5",
+      "Jinja2": "3.1.6",
+      "sniffio": "1.3.1",
+      "idna": "3.20",
+      "psutil": "7.2.2"
+    },
+    "profile": {}
+  },
+  "peak_rss_mib": 2076.671875
+}

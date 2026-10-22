@@ -1,0 +1,785 @@
+{
+  "python": "3.10.22 (main, Oct  3 2026, 01:32:06) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cpu": "x86_64",
+  "affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "rounds": 20,
+  "profile_enabled": false,
+  "ort_threads": [
+    4,
+    1
+  ],
+  "waitress_threads": 4,
+  "max_active": 2,
+  "model": "nemo-parakeet-tdt-0.6b-v3",
+  "quantization": "int8",
+  "providers": [
+    "CPUExecutionProvider"
+  ],
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "corpus": [
+    {
+      "id": "en-jfk",
+      "path": "/tmp/parakeet-audio/en.wav",
+      "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country",
+      "source": "https://github.com/ggml-org/whisper.cpp/blob/master/samples/jfk.wav",
+      "license": "US federal government speech; public domain",
+      "sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "duration_s": 11.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "path": "/tmp/parakeet-audio/ru.wav",
+      "text": "в древнем китае использовали уникальный способ обозначения периодов времени каждый этап китая или каждая семья находившаяся у власти были особой династией",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 1819,
+      "sha256": "08d7f2cd51bb0de6d00655368d9926888930a8a2482ee48153c1b099dcc2a7e4",
+      "duration_s": 16.92
+    },
+    {
+      "id": "es-fleurs-0",
+      "path": "/tmp/parakeet-audio/es.wav",
+      "text": "se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo de clima extremo en el área que visitan dado que ello puede afectar sus planes de viaje",
+      "source": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC-BY-4.0",
+      "dataset_id": 2001,
+      "sha256": "861ceedc4d50fbe52fc89b6d0c0fa740b9cd6fa668388e754064847386af0faf",
+      "duration_s": 12.84
+    }
+  ],
+  "checks": [
+    {
+      "name": "missing auth",
+      "ok": true
+    },
+    {
+      "name": "wrong auth",
+      "ok": true
+    },
+    {
+      "name": "missing file",
+      "ok": true
+    },
+    {
+      "name": "openapi",
+      "ok": true
+    },
+    {
+      "name": "format json",
+      "ok": true
+    },
+    {
+      "name": "format text",
+      "ok": true
+    },
+    {
+      "name": "format verbose_json",
+      "ok": true
+    },
+    {
+      "name": "format srt",
+      "ok": true
+    },
+    {
+      "name": "format vtt",
+      "ok": true
+    },
+    {
+      "name": "codec flac",
+      "ok": true
+    },
+    {
+      "name": "codec mp3",
+      "ok": true
+    },
+    {
+      "name": "codec m4a",
+      "ok": true
+    },
+    {
+      "name": "codec ogg",
+      "ok": true
+    },
+    {
+      "name": "codec webm",
+      "ok": true
+    },
+    {
+      "name": "codec wav",
+      "ok": true
+    },
+    {
+      "name": "invalid audio rejected",
+      "ok": true
+    },
+    {
+      "name": "long chunked audio",
+      "ok": true
+    },
+    {
+      "name": "concurrent text stable",
+      "ok": true
+    },
+    {
+      "name": "temporary files cleaned",
+      "ok": true
+    }
+  ],
+  "samples": [
+    {
+      "id": "en-jfk",
+      "iteration": 0,
+      "seconds": 0.7435985650008661,
+      "rtf": 0.06759986954553328,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 0,
+      "seconds": 0.9720570060017053,
+      "rtf": 0.05745017765967525,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 0,
+      "seconds": 0.8032042840059148,
+      "rtf": 0.06255485077927686,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 1,
+      "seconds": 0.6964567629984231,
+      "rtf": 0.06331425118167483,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 1,
+      "seconds": 0.9295101379975677,
+      "rtf": 0.0549355873521021,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 1,
+      "seconds": 0.6749375689978478,
+      "rtf": 0.05256523123036198,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 2,
+      "seconds": 0.6231174200001988,
+      "rtf": 0.05664703818183625,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 2,
+      "seconds": 0.8389518149997457,
+      "rtf": 0.04958344060282185,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 2,
+      "seconds": 0.7358499050023966,
+      "rtf": 0.0573091826325854,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 3,
+      "seconds": 0.7654194470014772,
+      "rtf": 0.06958358609104338,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 3,
+      "seconds": 1.0679440179956146,
+      "rtf": 0.06311725874678573,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 3,
+      "seconds": 0.8870951299977605,
+      "rtf": 0.06908840576306546,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 4,
+      "seconds": 0.667338656996435,
+      "rtf": 0.06066715063603955,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 4,
+      "seconds": 1.1910306450008648,
+      "rtf": 0.07039188209224968,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 4,
+      "seconds": 0.8821915880034794,
+      "rtf": 0.06870650996911834,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 5,
+      "seconds": 0.86227856700134,
+      "rtf": 0.07838896063648546,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 5,
+      "seconds": 1.422706601995742,
+      "rtf": 0.08408431453875542,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 5,
+      "seconds": 1.2161124230042333,
+      "rtf": 0.09471280552992471,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 6,
+      "seconds": 0.8081035030045314,
+      "rtf": 0.07346395481859376,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 6,
+      "seconds": 1.1076325419999193,
+      "rtf": 0.06546291619384866,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 6,
+      "seconds": 0.8864610840028035,
+      "rtf": 0.06903902523386321,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 7,
+      "seconds": 0.7390432430038345,
+      "rtf": 0.06718574936398496,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 7,
+      "seconds": 1.0658582399992156,
+      "rtf": 0.06299398581555647,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 7,
+      "seconds": 0.8004064249980729,
+      "rtf": 0.062336948987388854,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 8,
+      "seconds": 0.6926805080001941,
+      "rtf": 0.06297095527274492,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 8,
+      "seconds": 0.957253877997573,
+      "rtf": 0.05657528829772889,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 8,
+      "seconds": 0.8042731750028906,
+      "rtf": 0.06263809774165816,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 9,
+      "seconds": 0.7013235459962743,
+      "rtf": 0.0637566859996613,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 9,
+      "seconds": 0.9926759970039711,
+      "rtf": 0.058668794149170866,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 9,
+      "seconds": 0.8229392089997418,
+      "rtf": 0.06409183870714501,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 10,
+      "seconds": 0.8342364760028431,
+      "rtf": 0.0758396796366221,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 10,
+      "seconds": 1.1730898699970567,
+      "rtf": 0.06933155260029886,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 10,
+      "seconds": 0.9294420890000765,
+      "rtf": 0.07238645552960098,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 11,
+      "seconds": 0.7050435749988537,
+      "rtf": 0.06409487045444125,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 11,
+      "seconds": 1.1222518130016397,
+      "rtf": 0.06632693930269737,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 11,
+      "seconds": 0.7389484760060441,
+      "rtf": 0.05755050436184144,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 12,
+      "seconds": 0.779695855002501,
+      "rtf": 0.07088144136386373,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 12,
+      "seconds": 1.12720606700168,
+      "rtf": 0.06661974391262883,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 12,
+      "seconds": 0.8046958990016719,
+      "rtf": 0.06267102017146978,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 13,
+      "seconds": 0.7242292829978396,
+      "rtf": 0.06583902572707633,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 13,
+      "seconds": 1.0356423609991907,
+      "rtf": 0.06120817736401836,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 13,
+      "seconds": 0.953487236998626,
+      "rtf": 0.07425913060736963,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 14,
+      "seconds": 0.6690798650015495,
+      "rtf": 0.06082544227286813,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 14,
+      "seconds": 1.3899162969973986,
+      "rtf": 0.08214635325043726,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 14,
+      "seconds": 0.9068035360032809,
+      "rtf": 0.07062332834916518,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 15,
+      "seconds": 0.7293236590048764,
+      "rtf": 0.06630215081862513,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 15,
+      "seconds": 1.12509224400128,
+      "rtf": 0.06649481347525295,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 15,
+      "seconds": 0.8103676279934007,
+      "rtf": 0.0631127436131932,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 16,
+      "seconds": 0.6704881469995598,
+      "rtf": 0.060953467909050894,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 16,
+      "seconds": 1.1555638990030275,
+      "rtf": 0.06829573871176285,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 16,
+      "seconds": 0.8990096999987145,
+      "rtf": 0.07001633177560082,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 17,
+      "seconds": 0.6576089279988082,
+      "rtf": 0.059782629818073474,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 17,
+      "seconds": 1.0764255760004744,
+      "rtf": 0.06361853286054812,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 17,
+      "seconds": 0.8978512710018549,
+      "rtf": 0.0699261114487426,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 18,
+      "seconds": 0.8388951619999716,
+      "rtf": 0.07626319654545197,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 18,
+      "seconds": 1.1880849429944647,
+      "rtf": 0.07021778622898726,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 18,
+      "seconds": 0.9129773109962116,
+      "rtf": 0.07110415194674545,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    },
+    {
+      "id": "en-jfk",
+      "iteration": 19,
+      "seconds": 0.811468812993553,
+      "rtf": 0.073769892090323,
+      "text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "ru-fleurs-0",
+      "iteration": 19,
+      "seconds": 1.1114985759995761,
+      "rtf": 0.06569140520092057,
+      "text": "В древнем Китае использовали уникальный способ обозначения периодов времени, каждый этап Китая или каждая семья, находившаяся у власти, были особой династией.",
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "id": "es-fleurs-0",
+      "iteration": 19,
+      "seconds": 0.8507874370043282,
+      "rtf": 0.06626070381653647,
+      "text": "Se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo del clima extremo en el área que visitan, dado que ello pueda afectar sus planes de viaje.",
+      "wer": 0.06896551724137931,
+      "cer": 0.011834319526627219
+    }
+  ],
+  "startup_cached_model_s": 1.964859413994418,
+  "health": {
+    "backend": "onnx",
+    "default_model": "parakeet-tdt-0.6b-v3",
+    "mlx_model": null,
+    "models": [
+      "parakeet-tdt-0.6b-v3"
+    ],
+    "onnx_model": "nemo-parakeet-tdt-0.6b-v3",
+    "status": "healthy"
+  },
+  "first_request_s": 0.6117750070043257,
+  "first_text": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+  "warm": {
+    "n": 60,
+    "p50_s": 0.8565330020028341,
+    "p95_s": 1.1910306450008648
+  },
+  "by_audio": {
+    "en-jfk": {
+      "n": 20,
+      "p50_s": 0.726776471001358,
+      "p95_s": 0.8388951619999716
+    },
+    "ru-fleurs-0": {
+      "n": 20,
+      "p50_s": 1.1095655589997477,
+      "p95_s": 1.3899162969973986
+    },
+    "es-fleurs-0": {
+      "n": 20,
+      "p50_s": 0.8664895125039038,
+      "p95_s": 0.953487236998626
+    }
+  },
+  "codec_texts": {
+    "flac": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "mp3": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+    "m4a": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "ogg": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "webm": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country.",
+    "wav": "And so, my fellow Americans, ask not what your country can do for you. Ask what you can do for your country."
+  },
+  "concurrency_2": {
+    "requests": 8,
+    "elapsed_s": 5.236681017006049,
+    "requests_per_s": 1.5276851834244078,
+    "audio_seconds_per_s": 16.804537017668487,
+    "latency": {
+      "n": 8,
+      "p50_s": 1.2547330189991044,
+      "p95_s": 1.5685207819988136
+    }
+  },
+  "worker": {
+    "python": "3.10.22 (main, Oct  3 2026, 01:32:06) [Clang 22.1.3 ]",
+    "peak_rss_mib": 1934.3671875,
+    "packages": {
+      "exceptiongroup": "1.3.1",
+      "urllib3": "2.8.0",
+      "h11": "0.16.0",
+      "annotated-types": "0.8.0",
+      "certifi": "2026.10.19",
+      "requests": "2.34.2",
+      "openai": "3.36.1",
+      "pydantic": "2.14.1",
+      "Werkzeug": "3.1.9",
+      "protobuf": "7.36.2",
+      "hf-xet": "1.7.0",
+      "anyio": "4.15.1",
+      "pydantic_core": "2.50.1",
+      "numpy": "1.26.4",
+      "Flask": "3.1.3",
+      "humanfriendly": "10.0",
+      "httpx2": "2.14.0",
+      "PyYAML": "6.0.3",
+      "onnxruntime": "1.23.2",
+      "MarkupSafe": "3.0.4",
+      "sympy": "1.14.0",
+      "click": "8.5.0",
+      "pip": "26.2.2",
+      "coloredlogs": "15.0.1",
+      "filelock": "4.1.0",
+      "itsdangerous": "2.2.0",
+      "fsspec": "2026.9.0",
+      "tqdm": "4.70.1",
+      "waitress": "3.0.2",
+      "typing_extensions": "4.16.0",
+      "tomli": "2.5.0",
+      "onnx-asr": "0.12.0",
+      "flatbuffers": "25.12.19",
+      "mpmath": "1.3.0",
+      "typing-inspection": "0.4.4",
+      "jiter": "0.17.0",
+      "httpcore2": "2.14.0",
+      "packaging": "26.3",
+      "charset-normalizer": "3.5.2",
+      "huggingface_hub": "2.2.0",
+      "socksio": "1.0.0",
+      "blinker": "1.9.0",
+      "truststore": "0.10.5",
+      "Jinja2": "3.1.6",
+      "sniffio": "1.3.1",
+      "idna": "3.20",
+      "psutil": "7.2.2"
+    },
+    "profile": {}
+  },
+  "peak_rss_mib": 1934.3671875
+}

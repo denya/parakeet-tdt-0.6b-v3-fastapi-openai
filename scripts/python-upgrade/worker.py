@@ -29,6 +29,8 @@ def timed(name, fn):
 
 if os.environ.get("BENCH_PROFILE") == "1":
     import onnxruntime as ort
+    from onnx_asr.adapters import AsrAdapter
+    AsrAdapter.recognize = timed("recognize_total", AsrAdapter.recognize)
     original_run = ort.InferenceSession.run
     def ort_run(self, *args, **kwargs):
         name = Path(str(getattr(self, "_model_path", "preprocessor"))).name
