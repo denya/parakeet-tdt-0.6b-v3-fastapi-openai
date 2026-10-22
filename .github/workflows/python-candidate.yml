@@ -1,0 +1,39 @@
+name: CPU Python candidate
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - requirements-cpu.lock
+      - scripts/python-upgrade/**
+      - .github/workflows/python-candidate.yml
+      - tests/fixtures/python-upgrade/**
+permissions:
+  contents: read
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build isolated candidate (never deploy)
+        run: docker build --pull -t parakeet-python-candidate .
+      - name: Verify binary runtime, dependencies, ffmpeg and TLS
+        run: |
+          docker run --rm --entrypoint python parakeet-python-candidate -c 'import sys, ssl, urllib.request, numpy, onnxruntime, onnx_asr, flask, waitress; assert sys.version_info[:3] == (3,14,9); assert numpy.__version__ == "2.5.4"; assert onnxruntime.__version__ == "1.31.0"; print(sys.version, ssl.OPENSSL_VERSION); urllib.request.urlopen("https://pypi.org", timeout=20)'
+          docker run --rm --entrypoint python parakeet-python-candidate -m pip check
+          docker run --rm --entrypoint ffmpeg parakeet-python-candidate -version
+          docker run --rm --entrypoint python -v "$PWD:/src:ro" parakeet-python-candidate /src/scripts/python-upgrade/check_tls.py --public
+      - name: Real multilingual ASR regression in built image
+        run: |
+          mkdir -p /tmp/parakeet-ci-models /tmp/parakeet-ci-results
+          chmod 777 /tmp/parakeet-ci-models /tmp/parakeet-ci-results
+          docker run --rm --cpus=4 --memory=6g --entrypoint python -v "$PWD:/src:ro" -v /tmp/parakeet-ci-models:/cache parakeet-python-candidate /src/scripts/python-upgrade/prepare_model.py --cache /cache
+          docker run --rm --network=none --cpus=4 --memory=6g --entrypoint python -v "$PWD:/src:ro" -v /tmp/parakeet-ci-models:/cache:ro -v /tmp/parakeet-ci-results:/results parakeet-python-candidate /src/scripts/python-upgrade/benchmark.py --manifest /src/tests/fixtures/python-upgrade/manifest.json --cache /cache --output /results/candidate.json --rounds 2
+          cat /tmp/parakeet-ci-results/candidate.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: cpu-python-candidate-results
+          path: /tmp/parakeet-ci-results/

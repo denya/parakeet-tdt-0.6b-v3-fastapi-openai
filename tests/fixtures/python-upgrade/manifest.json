@@ -1,0 +1,50 @@
+[
+  {
+    "id": "en-jfk",
+    "path": "en-jfk.flac",
+    "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country",
+    "source": "https://github.com/ggml-org/whisper.cpp/blob/master/samples/jfk.wav",
+    "license": "US federal government speech; public domain",
+    "sha256": "448d17921a7f352519d3d73194fa72bfaf58189ba1749e9caf5c987b3cc11557"
+  },
+  {
+    "id": "ru-fleurs-0",
+    "path": "ru-fleurs-0.flac",
+    "text": "в древнем китае использовали уникальный способ обозначения периодов времени каждый этап китая или каждая семья находившаяся у власти были особой династией",
+    "source": "https://huggingface.co/datasets/google/fleurs",
+    "license": "CC-BY-4.0",
+    "dataset_id": 1819,
+    "sha256": "47b9def9a5b640257aebd154770ee8a14177931c8ced396c94575c2a4ae1d03b"
+  },
+  {
+    "id": "es-fleurs-0",
+    "path": "es-fleurs-0.flac",
+    "text": "se recomienda enfáticamente a los viajeros que se informen sobre cualquier riesgo de clima extremo en el área que visitan dado que ello puede afectar sus planes de viaje",
+    "source": "https://huggingface.co/datasets/google/fleurs",
+    "license": "CC-BY-4.0",
+    "dataset_id": 2001,
+    "sha256": "bd59c305d89265bcfa10b6d35a202144dc1bf4c1c2fa8300a6d051fcee25f0f2"
+  },
+  {
+    "id": "ru-fleurs-5",
+    "path": "ru-fleurs-5.flac",
+    "text": "в 1990 году он был добавлен в список всемирного наследия находящегося под угрозой из-за опасности со стороны песков пустыни",
+    "raw_text": "В 1990 году он был добавлен в список всемирного наследия, находящегося под угрозой из-за опасности со стороны песков пустыни.",
+    "source": "https://huggingface.co/datasets/google/fleurs",
+    "license": "CC-BY-4.0",
+    "dataset_id": 1704,
+    "row_index": 5,
+    "sha256": "7da75161318c5f7742c53e6107e151eb8691f7d0dcbfa8654ef92bac7f9517cb"
+  },
+  {
+    "id": "es-fleurs-1",
+    "path": "es-fleurs-1.flac",
+    "text": "el uso adecuado de los blogs «puede empoderar a los alumnos para que sean más analíticos y críticos a través de la respuesta activa a los contenidos de internet pueden definir sus posturas en el contexto de los escritos de otros además de establecer sus perspectivas sobre temas específicos» oravec 2002",
+    "raw_text": "El uso adecuado de los blogs «puede empoderar a los alumnos para que sean más analíticos y críticos, a través de la respuesta activa a los contenidos de internet, pueden definir sus posturas en el contexto de los escritos de otros, además de establecer sus perspectivas sobre temas específicos» (Oravec, 2002).",
+    "source": "https://huggingface.co/datasets/google/fleurs",
+    "license": "CC-BY-4.0",
+    "dataset_id": 1852,
+    "row_index": 1,
+    "sha256": "90ffc8d8ec61601fc78c399e3db6d23f6d71132f51461292c355dc89a2ddb236"
+  }
+]
