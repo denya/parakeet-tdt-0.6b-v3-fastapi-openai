@@ -12,7 +12,9 @@ import certifi
 
 
 def command(*args):
-    subprocess.run(['openssl', *map(str, args)], check=True, capture_output=True)
+    result = subprocess.run(['openssl', *map(str, args)], capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError(result.stderr)
 
 
 def handshake(cert, key, context, hostname='localhost', expected_error=None):
@@ -61,9 +63,15 @@ def main():
                 '-keyout', key, '-out', csr)
         extensions = root/'extensions.cnf'
         extensions.write_text('subjectAltName=DNS:localhost\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\n')
-        for name, days, serial in [('valid', 1, 1), ('expired', -1, 2)]:
-            command('x509', '-req', '-in', csr, '-CA', ca, '-CAkey', ca_key,
-                    '-set_serial', serial, '-days', days, '-extfile', extensions, '-out', root/(name+'.pem'))
+        command('x509', '-req', '-in', csr, '-CA', ca, '-CAkey', ca_key,
+                '-set_serial', '1', '-days', '1', '-extfile', extensions, '-out', root/'valid.pem')
+        # Explicit past dates work across OpenSSL 3.0/3.5; negative -days does not.
+        (root/'index').write_text('')
+        (root/'serial').write_text('02\n')
+        config = root/'ca.cnf'
+        config.write_text(f"[ca]\ndefault_ca=test\n[test]\ndatabase={root}/index\nserial={root}/serial\nnew_certs_dir={root}\ncertificate={ca}\nprivate_key={ca_key}\ndefault_md=sha256\npolicy=policy\nx509_extensions=server\n[policy]\ncommonName=supplied\n[server]\n" + extensions.read_text())
+        command('ca', '-batch', '-config', config, '-in', csr, '-out', root/'expired.pem',
+                '-startdate', '200101000000Z', '-enddate', '210101000000Z')
         for name, cafile in [('system', None), ('certifi', certifi.where())]:
             context = ssl.create_default_context(cafile=cafile)
             assert context.verify_mode == ssl.CERT_REQUIRED and context.check_hostname
