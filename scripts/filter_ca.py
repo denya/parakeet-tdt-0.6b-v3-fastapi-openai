@@ -3,6 +3,7 @@ import pathlib
 import re
 import ssl
 import sys
+import tempfile
 
 BLOCKED = (b'emSign ECC Root CA - G3', b'AAA Certificate Services')
 
@@ -12,11 +13,28 @@ def filtered(text):
         return '' if any(name in der for name in BLOCKED) else match.group()
     return re.sub(r'-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----', replace, text, flags=re.S)
 
+def clean_anchor(path):
+    text = path.read_text(errors='replace')
+    updated = filtered(text)
+    if updated != text:
+        if 'BEGIN CERTIFICATE' in updated:
+            path.write_text(updated)
+        else:
+            path.unlink()
+
 if __name__ == '__main__':
     if '--self-test' in sys.argv:
         good = ssl.DER_cert_to_PEM_cert(b'kept certificate')
         for name in BLOCKED:
             assert filtered(ssl.DER_cert_to_PEM_cert(name) + good).strip() == good.strip()
+        with tempfile.TemporaryDirectory() as directory:
+            cert = pathlib.Path(directory) / 'anchor.crt'
+            cert.write_text('# CA description\n' + ssl.DER_cert_to_PEM_cert(BLOCKED[0]))
+            clean_anchor(cert)
+            assert not cert.exists()
+            cert.write_text(ssl.DER_cert_to_PEM_cert(BLOCKED[0]) + good)
+            clean_anchor(cert)
+            assert cert.read_text().strip() == good.strip()
         assert filtered('unrelated') == 'unrelated'
     else:
         bundles = [pathlib.Path('/etc/ssl/certs/ca-certificates.crt')]
@@ -28,6 +46,4 @@ if __name__ == '__main__':
         for directory in ['/usr/share/ca-certificates', '/etc/ssl/certs']:
             for cert in pathlib.Path(directory).rglob('*'):
                 if cert.is_file() and cert.suffix in {'.pem', '.crt'}:
-                    text = cert.read_text(errors='replace')
-                    if 'BEGIN CERTIFICATE' in text and not filtered(text).strip():
-                        cert.unlink()
+                    clean_anchor(cert)
