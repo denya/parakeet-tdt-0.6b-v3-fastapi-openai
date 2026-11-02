@@ -1,7 +1,7 @@
 # Parakeet TDT 0.6B ONNX - CPU Dockerfile
 # High-performance speech transcription on CPU
 
-FROM python:3.10-slim
+FROM python:3.12.16-slim-trixie@sha256:8523d6abeb48ceae0b7240d30c5808fc26cb79c1a635bacdf19cf3baecfbec07
 
 LABEL maintainer="Parakeet TDT"
 LABEL description="ONNX-optimized speech transcription service (CPU)"
@@ -21,11 +21,15 @@ WORKDIR /app
 
 # Copy requirements first for layer caching
 COPY requirements.txt .
+COPY requirements-cpu.lock .
+COPY scripts/filter_ca.py /usr/local/bin/filter-ca.py
 
 # Install Python dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir --cert /etc/ssl/certs/ca-certificates.crt --upgrade "pip>=26.2.2" && \
-    pip install --no-cache-dir -r requirements.txt
+RUN python /usr/local/bin/filter-ca.py --self-test && \
+    python /usr/local/bin/filter-ca.py && \
+    pip install --no-cache-dir --only-binary=:all: --require-hashes -r requirements-cpu.lock && \
+    pip check && python /usr/local/bin/filter-ca.py
 
 # Copy application code
 COPY app.py .
